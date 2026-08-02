@@ -111,8 +111,10 @@ function kgeo_proxy($method, $path, $user, $billing_mode = null) {
         if ($raw !== '') {
             json_decode($raw);
             if (json_last_error() !== JSON_ERROR_NONE) { kgeo_error(400, 'JSONを確認してください'); }
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $raw);
         }
+        // 空ボディでもPOSTFIELDSを設定する。未設定だとcurlがContent-Lengthを送らず、
+        // Cloud Runのフロントエンドが411 Length Requiredで拒否する（監査・質問実行は空ボディ）。
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $raw);
     }
     $body = curl_exec($ch);
     $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
