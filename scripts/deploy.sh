@@ -35,4 +35,20 @@ else
   exit 1
 fi
 
+# kgeo.exbridge.jp のLP（英語=index.html / 日本語=kgeo.html）
+lp_remote="/web/kgeo_exbridge_jp"
+upload_lp() {
+  local source_file="$1"
+  local remote_file="$2"
+  curl --fail --silent --show-error --ftp-create-dirs -T "$source_file" \
+    "ftp://${FTP_USER}:${FTP_PASS}@${FTP_HOST}${lp_remote}/${remote_file}"
+  echo "deployed: kgeo.exbridge.jp/${remote_file}"
+}
+upload_lp landing/index.html index.html
+upload_lp landing/kgeo.html kgeo.html
+upload_lp landing/assets/kurage_avatar.png assets/kurage_avatar.png
+upload_lp landing/assets/kurage_avatar.webp assets/kurage_avatar.webp
+upload_lp landing/assets/ogp.png assets/ogp.png
+
 echo "published: https://kurage.exbridge.jp/kgeo.php"
+echo "published: https://kgeo.exbridge.jp/ (en) / https://kgeo.exbridge.jp/kgeo.html (ja)"

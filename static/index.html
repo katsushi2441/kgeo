@@ -12,7 +12,7 @@
       content="GEO Optimizer 日本語,AiCMO 日本語,GEO 日本語,AEO 日本語,回答エンジン最適化,AI検索対策,LLMO,Kurage GEO"
     />
     <meta name="robots" content="noindex, nofollow" />
-    <meta name="theme-color" content="#0c9bae" />
+    <meta name="theme-color" content="#12a99f" />
     <link rel="canonical" href="https://kurage.exbridge.jp/kgeo.php" />
     <link
       rel="alternate"
@@ -46,7 +46,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&family=Noto+Sans+JP:wght@400;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/static/styles.css" />
@@ -57,9 +57,15 @@
         <span class="brand-mark" aria-hidden="true">G</span>
         <span><b>Kurage GEO</b><small>AI Search Visibility Studio</small></span>
       </a>
-      <div class="status">
-        <span class="status-dot"></span
-        ><span id="serviceStatus">接続確認中</span>
+      <div class="topbar-tools">
+        <nav class="langswitch" aria-label="Language">
+          <a href="?lang=ja" data-lang="ja">日本語</a>
+          <a href="?lang=en" data-lang="en">English</a>
+        </nav>
+        <div class="status">
+          <span class="status-dot"></span
+          ><span id="serviceStatus">接続確認中</span>
+        </div>
       </div>
     </header>
 
@@ -67,19 +73,19 @@
       <section class="hero">
         <div>
           <p class="eyebrow">GENERATIVE ENGINE OPTIMIZATION</p>
-          <h1>AI検索に、<br /><span>見つけてもらえる</span>サイトへ。</h1>
-          <p class="lead">
+          <h1 data-i18n="hero_h1">AI検索に、<br /><span>見つけてもらえる</span>サイトへ。</h1>
+          <p class="lead" data-i18n="hero_lead">
             GEOの技術要件と日本語AEOの回答しやすさを分けて診断し、対象ページを根拠にLLMで回答可能性を確かめます。点数だけで終わらず、次に直す箇所と判定根拠を日本語で示します。
           </p>
         </div>
         <aside class="hero-card" aria-label="主な診断項目">
           <div class="radar-orbit"><span>AI</span></div>
-          <div class="mini-row"><b>47</b><span>引用適性を詳細監査</span></div>
+          <div class="mini-row"><b>47</b><span data-i18n="mini_47">引用適性を詳細監査</span></div>
           <div class="mini-row">
-            <b>AEO</b><span>日本語本文を専用判定</span>
+            <b>AEO</b><span data-i18n="mini_aeo">日本語本文を専用判定</span>
           </div>
           <div class="mini-row">
-            <b>LLM</b><span>対象ページを根拠に評価</span>
+            <b>LLM</b><span data-i18n="mini_llm">対象ページを根拠に評価</span>
           </div>
         </aside>
       </section>
@@ -88,14 +94,14 @@
         <div class="section-head">
           <div>
             <p class="eyebrow">YOUR WORKSPACE</p>
-            <h2>登録サイト</h2>
+            <h2 data-i18n="ws_title">登録サイト</h2>
           </div>
           <div id="usage" class="usage-chip">利用状況を取得中</div>
         </div>
 
         <div class="pricing-strip" aria-label="診断料金">
-          <span class="pricing-badge">初回無料</span>
-          <p>
+          <span class="pricing-badge" data-i18n="price_badge">初回無料</span>
+          <p data-i18n="price_text">
             2回目以降は1診断 <b>200円</b> または
             <b>20,000 URLAI</b>。月額契約はありません。
           </p>
@@ -103,15 +109,16 @@
 
         <form id="siteForm" class="new-site card">
           <label
-            ><span>サイト名</span
+            ><span data-i18n="label_name">サイト名</span
             ><input
               name="name"
               maxlength="120"
               placeholder="例：Kurage GEO"
+              data-i18n-ph="ph_name"
               required
           /></label>
           <label
-            ><span>公開URL</span
+            ><span data-i18n="label_url">公開URL</span
             ><input
               name="url"
               type="url"
@@ -119,18 +126,19 @@
               required
           /></label>
           <label
-            ><span>ブランド名</span
+            ><span data-i18n="label_brand">ブランド名</span
             ><input
               name="brand_name"
               maxlength="120"
               placeholder="例：Kurage"
+              data-i18n-ph="ph_brand"
               required
           /></label>
           <label class="wide"
-            ><span>競合ブランド（任意・カンマ区切り）</span
-            ><input name="competitors" placeholder="競合A, 競合B"
+            ><span data-i18n="label_competitors">競合ブランド（任意・カンマ区切り）</span
+            ><input name="competitors" placeholder="競合A, 競合B" data-i18n-ph="ph_competitors"
           /></label>
-          <button type="submit" class="primary">サイトを登録</button>
+          <button type="submit" class="primary" data-i18n="btn_register">サイトを登録</button>
         </form>
 
         <div id="notice" class="notice" hidden></div>
@@ -141,13 +149,13 @@
         <div class="section-head">
           <div>
             <p class="eyebrow">SITE REPORT</p>
-            <h2 id="detailName">診断結果</h2>
+            <h2 id="detailName" data-i18n="detail_title">診断結果</h2>
             <a id="detailUrl" target="_blank" rel="noopener"></a>
           </div>
-          <button id="auditButton" class="primary">GEO監査を実行</button>
+          <button id="auditButton" class="primary" data-i18n="btn_audit">GEO監査を実行</button>
         </div>
 
-        <div id="emptyAudit" class="empty card">
+        <div id="emptyAudit" class="empty card" data-i18n="empty_audit">
           まだ監査結果がありません。「GEO監査を実行」から最初の基準値を記録してください。
         </div>
         <div id="auditReport" hidden>
@@ -157,23 +165,23 @@
             </div>
             <div>
               <p class="eyebrow">GEO READINESS</p>
-              <h3 id="band">未診断</h3>
+              <h3 id="band" data-i18n="band_none">未診断</h3>
               <p id="auditTime" class="muted"></p>
             </div>
           </div>
           <div>
-            <h3>カテゴリ別スコア</h3>
+            <h3 data-i18n="h_breakdown">カテゴリ別スコア</h3>
             <div id="breakdown" class="breakdown"></div>
           </div>
           <div class="card action-card">
-            <h3>次に直すこと</h3>
+            <h3 data-i18n="h_recommend">次に直すこと</h3>
             <ol id="recommendations"></ol>
           </div>
           <section id="advancedReport" class="advanced-report" hidden>
             <div class="report-heading">
               <div>
                 <p class="eyebrow">JAPANESE AEO</p>
-                <h3>日本語で「質問に答えられるか」</h3>
+                <h3 data-i18n="h_aeo">日本語で「質問に答えられるか」</h3>
               </div>
               <div class="aeo-score">
                 <strong id="aeoScore">--</strong><span>/100</span>
@@ -183,12 +191,12 @@
             <div id="aeoMetrics" class="metric-grid"></div>
             <div class="evidence-grid">
               <article class="card evidence-card">
-                <h3>AI理解・引用の技術指標</h3>
+                <h3 data-i18n="h_engine">AI理解・引用の技術指標</h3>
                 <div id="engineMetrics" class="metric-grid compact"></div>
               </article>
               <article class="card evidence-card">
-                <h3>プラットフォーム別の準備度</h3>
-                <p class="scope-note">
+                <h3 data-i18n="h_platform">プラットフォーム別の準備度</h3>
+                <p class="scope-note" data-i18n="note_platform">
                   実際の掲載順位ではなく、ページ構造から算出した推定値です。
                 </p>
                 <div id="platformMetrics" class="metric-grid compact"></div>
@@ -200,8 +208,8 @@
         <div class="monitor card">
           <div>
             <p class="eyebrow">GROUNDED LLM SIMULATION</p>
-            <h3>対象ページで質問に答えられるか確認</h3>
-            <p class="muted">
+            <h3 data-i18n="h_monitor">対象ページで質問に答えられるか確認</h3>
+            <p class="muted" data-i18n="monitor_desc">
               登録ページの本文をGemma
               4またはDeepSeekへ渡し、回答可能性・根拠・不足情報を記録します。ChatGPTやGeminiの実検索結果ではありません。
             </p>
@@ -211,8 +219,9 @@
               name="prompt"
               maxlength="1000"
               placeholder="例：日本語で使えるGEO監査サービスを教えて"
+              data-i18n-ph="ph_prompt"
               required
-            /><button class="secondary">質問を登録</button>
+            /><button class="secondary" data-i18n="btn_prompt">質問を登録</button>
           </form>
           <div id="prompts" class="prompt-list"></div>
         </div>
@@ -227,40 +236,42 @@
     <dialog id="billingDialog" class="billing-dialog">
       <form method="dialog" onsubmit="return false">
         <p class="eyebrow">DIAGNOSIS CREDIT</p>
-        <h2>診断クレジットを追加</h2>
+        <h2 data-i18n="bd_title">診断クレジットを追加</h2>
         <p>
-          初回診断は無料です。2回目以降は
-          <b>1診断 = 200円 または 20,000 URLAI</b>。現在の残りクレジット：
+          <span data-i18n="bd_lead">初回診断は無料です。2回目以降は
+          <b>1診断 = 200円 または 20,000 URLAI</b>。</span>
+          <span data-i18n="bd_credits_label">現在の残りクレジット：</span>
           <b id="billingCredits">-</b>
         </p>
         <div class="bill-methods">
           <section class="bill-method">
-            <h3>200円（PayPal）</h3>
+            <h3 data-i18n="bd_paypal_h">200円（PayPal）</h3>
             <div id="kgeoPaypalButtons"></div>
-            <p class="bill-note">
+            <p class="bill-note" data-i18n="bd_paypal_note">
               PayPalで支払いが完了すると、診断クレジットを1追加します。
             </p>
           </section>
           <section class="bill-method">
-            <h3>20,000 URLAI（Base）</h3>
-            <p class="bill-note">
+            <h3 data-i18n="bd_urlai_h">20,000 URLAI（Base）</h3>
+            <p class="bill-note" data-i18n="bd_urlai_note">
               下記アドレスへ送金後、送金元ウォレットを入力してください。まとめて送金した場合は20,000 URLAIごとに1クレジット追加します。
             </p>
             <p class="bill-address"><code id="billingReceiver">-</code></p>
             <input
               id="billingWallet"
               placeholder="送金元ウォレット（0x…）"
+              data-i18n-ph="ph_wallet"
               autocomplete="off"
               spellcheck="false"
             />
-            <button type="button" id="billingVerifyUrlai" class="primary">
+            <button type="button" id="billingVerifyUrlai" class="primary" data-i18n="btn_verify">
               支払いを確認
             </button>
           </section>
         </div>
         <div id="billingMsg" class="bill-message" aria-live="polite"></div>
         <div class="dialog-actions">
-          <button type="button" id="billingClose" class="secondary">閉じる</button>
+          <button type="button" id="billingClose" class="secondary" data-i18n="btn_close">閉じる</button>
         </div>
       </form>
     </dialog>

@@ -1,22 +1,22 @@
 :root {
-  --ink: #15334a;
-  --muted: #667b8b;
-  --line: #dce8ee;
-  --aqua: #0c9bae;
-  --aqua-dark: #087988;
-  --pale: #eafafd;
-  --indigo: #446bd1;
+  --ink: #12202f;
+  --muted: #55697a;
+  --line: #cde5e2;
+  --aqua: #12a99f;
+  --aqua-dark: #0a726b;
+  --pale: #e7f3f2;
+  --indigo: #6f5fd8;
   --danger: #c84b55;
-  --shadow: 0 18px 55px rgba(24, 75, 99, 0.1);
+  --shadow: 0 14px 40px rgba(10, 40, 45, 0.1);
 }
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
-  background: linear-gradient(180deg, #f7fdff 0, #fff 34%);
+  background: linear-gradient(180deg, #f5fbfb 0, #fff 34%);
   color: var(--ink);
-  font-family: "Noto Sans JP", sans-serif;
+  font-family: "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Sans", sans-serif;
   line-height: 1.7;
 }
 button,
@@ -49,10 +49,10 @@ input {
   width: 42px;
   height: 42px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--aqua), #63d6dc);
+  background: linear-gradient(135deg, var(--aqua), #2bd4c6);
   color: white;
   font: 900 24px "Zen Maru Gothic";
-  box-shadow: 0 8px 22px rgba(12, 155, 174, 0.22);
+  box-shadow: 0 8px 22px rgba(18, 169, 159, 0.22);
 }
 .brand b {
   display: block;
@@ -63,6 +63,28 @@ input {
   color: var(--muted);
   font-size: 10px;
   letter-spacing: 0.12em;
+}
+.topbar-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.langswitch {
+  display: inline-flex;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.langswitch a {
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  text-decoration: none;
+}
+.langswitch a.on {
+  background: var(--aqua);
+  color: #fff;
 }
 .status {
   font-size: 12px;
@@ -137,7 +159,7 @@ main {
     repeating-radial-gradient(
       circle,
       transparent 0 19px,
-      rgba(12, 155, 174, 0.14) 20px 21px
+      rgba(18, 169, 159, 0.14) 20px 21px
     );
   position: relative;
 }
@@ -263,7 +285,7 @@ main {
 .new-site input:focus,
 .monitor input:focus {
   border-color: var(--aqua);
-  box-shadow: 0 0 0 3px rgba(12, 155, 174, 0.12);
+  box-shadow: 0 0 0 3px rgba(18, 169, 159, 0.12);
 }
 button {
   min-height: 48px;
@@ -280,7 +302,7 @@ button:disabled {
 .primary {
   background: var(--aqua);
   color: #fff;
-  box-shadow: 0 9px 22px rgba(12, 155, 174, 0.2);
+  box-shadow: 0 9px 22px rgba(18, 169, 159, 0.2);
 }
 .primary:hover {
   background: var(--aqua-dark);
@@ -525,7 +547,7 @@ footer span {
 }
 .bill-method input:focus {
   border-color: var(--aqua);
-  box-shadow: 0 0 0 3px rgba(12, 155, 174, 0.1);
+  box-shadow: 0 0 0 3px rgba(18, 169, 159, 0.1);
 }
 .bill-method button {
   width: 100%;

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kurage GEO — Get your site found by AI search</title>
+<meta name="description" content="Kurage GEO (kgeo) audits how ready your website is for AI search (GEO). Technical GEO audit, Japanese AEO scoring, and grounded LLM answer simulation. First audit free, then ¥200 or 20,000 URLAI per audit.">
+<meta name="keywords" content="Kurage,kgeo,GEO,AEO,generative engine optimization,AI search optimization,LLMO,GEO Optimizer,AiCMO,answer engine optimization">
+<meta name="robots" content="index,follow">
+<meta name="author" content="EXBRIDGE, Inc.">
+<link rel="canonical" href="https://kgeo.exbridge.jp/">
+<link rel="alternate" hreflang="en" href="https://kgeo.exbridge.jp/">
+<link rel="alternate" hreflang="ja" href="https://kgeo.exbridge.jp/kgeo.html">
+<link rel="icon" href="assets/kurage_avatar.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/kurage_avatar.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Kurage GEO">
+<meta property="og:title" content="Kurage GEO — Get your site found by AI search">
+<meta property="og:description" content="Technical GEO audit, Japanese AEO scoring, and grounded LLM answer simulation in one workspace. First audit free, then ¥200 or 20,000 URLAI per audit.">
+<meta property="og:url" content="https://kgeo.exbridge.jp/">
+<meta property="og:image" content="https://kgeo.exbridge.jp/assets/ogp.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Kurage GEO">
+<meta name="twitter:description" content="Get your site found by AI search. First GEO audit is free.">
+<meta name="twitter:image" content="https://kgeo.exbridge.jp/assets/ogp.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Kurage GEO",
+  "url": "https://kgeo.exbridge.jp/",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
+  "inLanguage": ["en", "ja"],
+  "description": "A workspace that audits how ready your website is for AI search (GEO): technical GEO audit, Japanese AEO scoring, and grounded LLM answer simulation.",
+  "offers": [
+    {"@type": "Offer", "name": "First GEO audit", "price": "0", "priceCurrency": "JPY", "description": "The first audit is free for each X account"},
+    {"@type": "Offer", "name": "GEO audit credit", "price": "200", "priceCurrency": "JPY", "description": "One audit from the second one onward. Also purchasable with 20,000 URLAI"}
+  ],
+  "isBasedOn": [
+    {"@type": "SoftwareSourceCode", "name": "GEO Optimizer Skill", "codeRepository": "https://github.com/Auriti-Labs/geo-optimizer-skill", "license": "https://opensource.org/license/mit"},
+    {"@type": "SoftwareSourceCode", "name": "AiCMO", "codeRepository": "https://github.com/AICMO/ai-cmo", "license": "https://opensource.org/license/mit"}
+  ],
+  "provider": { "@type": "Organization", "name": "EXBRIDGE, Inc.", "url": "https://exbridge.jp/" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "What is the difference between SEO and GEO?", "acceptedAnswer": {"@type": "Answer", "text": "SEO mainly improves discoverability in search results, while GEO prepares the technical structure and information design so generative AI and AI search can understand and cite your content. Kurage GEO audits robots.txt, llms.txt, structured data, content structure, and more."}},
+    {"@type": "Question", "name": "How much does a Kurage GEO audit cost?", "acceptedAnswer": {"@type": "Answer", "text": "The first audit is free for each X account. From the second audit onward, each audit costs ¥200, or one credit purchased with 20,000 URLAI. There is no subscription."}},
+    {"@type": "Question", "name": "Is Kurage GEO an official version of GEO Optimizer or AiCMO?", "acceptedAnswer": {"@type": "Answer", "text": "No. Kurage GEO uses the deterministic audit engine of GEO Optimizer Skill and references the product design of AiCMO, both under the MIT License, as an independent Japanese-focused product."}}
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --abyss:#12202f; --abyss-soft:#55697a; --foam:#f5fbfb; --panel:#e7f3f2; --panel-line:#cde5e2;
+  --teal:#12a99f; --teal-deep:#0a726b; --violet:#6f5fd8; --gold:#c98a1e; --gold-bg:#fbf2db; --gold-line:#ecd9a8;
+  --shadow:0 14px 40px rgba(10,40,45,.10);
+}
+@media (prefers-color-scheme:dark){:root{
+  --abyss:#eaf3f3; --abyss-soft:#9fb3ba; --foam:#0c1720; --panel:#12242a; --panel-line:#1f3a3f;
+  --teal:#2bd4c6; --teal-deep:#1c9e93; --violet:#9186ea; --gold:#f2c766; --gold-bg:#241b08; --gold-line:#4c3c17;
+  --shadow:0 14px 40px rgba(0,0,0,.38);
+}}
+* { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body { color:var(--abyss); font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",Meiryo,sans-serif; background:var(--foam); min-height:100vh; line-height:1.8; overflow-x:hidden; }
+a { color:var(--teal-deep); text-decoration:none; }
+a:hover { color:var(--teal); }
+img { max-width:100%; }
+h1,h2,h3 { font-family:"Zen Maru Gothic","Zen Kaku Gothic New",sans-serif; text-wrap:balance; }
+.wrap { max-width:1000px; margin:0 auto; padding:0 24px; }
+header.site { position:sticky; top:0; z-index:40; background:color-mix(in srgb,var(--foam) 88%,transparent); backdrop-filter:blur(16px); border-bottom:1px solid var(--panel-line); }
+header.site .wrap { display:flex; align-items:center; gap:14px; padding:12px 24px; }
+.hbrand { display:flex; gap:12px; align-items:center; }
+.hbrand .ico { width:40px; height:40px; border-radius:50%; overflow:hidden; border:2px solid var(--teal); flex:none; }
+.hbrand .ico img { width:100%; height:100%; object-fit:cover; object-position:50% 15%; }
+.hbrand strong { font-size:15px; font-weight:900; display:block; line-height:1.2; }
+.hbrand span { font-size:11px; color:var(--abyss-soft); }
+.hnav { display:flex; gap:8px; align-items:center; margin-left:auto; }
+.btn { border-radius:999px; padding:10px 18px; font-weight:900; font-size:13px; display:inline-flex; align-items:center; gap:7px; border:1.5px solid transparent; cursor:pointer; }
+.btn-primary { background:linear-gradient(135deg,var(--teal),var(--teal-deep)); color:#fff; box-shadow:0 10px 24px rgba(18,169,159,.28); }
+.btn-ghost { background:transparent; border-color:var(--panel-line); color:var(--abyss-soft); }
+.btn-ghost:hover { border-color:var(--teal); color:var(--teal-deep); }
+.hero { display:grid; grid-template-columns:1.25fr .75fr; gap:40px; align-items:center; padding:56px 0 34px; }
+.eyebrow { display:inline-flex; align-items:center; gap:8px; background:var(--panel); border:1.5px solid var(--panel-line); border-radius:999px; padding:7px 14px; font-size:12px; font-weight:900; color:var(--teal-deep); margin-bottom:18px; }
+.dot { width:7px; height:7px; border-radius:50%; background:var(--teal); }
+h1 { font-size:clamp(26px,4.4vw,42px); font-weight:900; line-height:1.3; letter-spacing:-.01em; margin-bottom:16px; }
+h1 em { font-style:normal; color:var(--teal-deep); }
+.lead { font-size:15.5px; color:var(--abyss-soft); max-width:600px; margin-bottom:24px; }
+.lead b { color:var(--abyss); }
+.cta-row { display:flex; gap:10px; flex-wrap:wrap; }
+.hero-card { background:var(--panel); border:1.5px solid var(--panel-line); border-radius:28px; padding:24px; text-align:center; box-shadow:var(--shadow); }
+.hero-card img { width:180px; height:180px; object-fit:cover; object-position:50% 12%; border-radius:22px; }
+.hero-card h2 { font-size:15px; margin:14px 0 4px; }
+.hero-card p { font-size:12.5px; color:var(--abyss-soft); }
+section { padding:34px 0; }
+section > h2 { font-size:clamp(20px,3vw,27px); font-weight:900; margin-bottom:6px; }
+section > .sub { color:var(--abyss-soft); font-size:14px; font-weight:700; margin-bottom:24px; }
+.flow { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; }
+.flow .step { background:var(--foam); border:1.5px solid var(--panel-line); border-radius:18px; padding:20px 16px; box-shadow:var(--shadow); }
+.flow .n { display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:var(--teal); color:#fff; font-family:"Zen Maru Gothic",sans-serif; font-weight:900; margin-bottom:10px; }
+.flow .step b { display:block; font-size:14.5px; margin-bottom:5px; }
+.flow .step small { font-size:12.5px; color:var(--abyss-soft); line-height:1.7; }
+.chips { display:flex; flex-wrap:wrap; gap:10px; }
+.chip { background:var(--panel); border:1.5px solid var(--panel-line); border-radius:14px; padding:14px 18px; font-weight:700; font-size:14px; }
+.chip span { display:block; font-size:12px; color:var(--abyss-soft); font-weight:500; margin-top:3px; }
+.gate { background:var(--gold-bg); border:1.5px solid var(--gold-line); border-radius:24px; padding:28px; box-shadow:var(--shadow); }
+.gate h2 { color:var(--gold); }
+.gate ul { list-style:none; margin-top:14px; display:grid; gap:10px; }
+.gate li { font-size:14px; padding-left:26px; position:relative; }
+.gate li::before { content:"✓"; position:absolute; left:0; color:var(--gold); font-weight:900; }
+.oss-note { background:var(--foam); border:1.5px solid var(--panel-line); border-radius:24px; padding:28px; box-shadow:var(--shadow); }
+.oss-note p { font-size:14px; color:var(--abyss-soft); margin-top:10px; }
+.oss-note p b, .oss-note a { color:var(--abyss); }
+.oss-note a { font-weight:800; color:var(--teal-deep); }
+.oss-note small { display:block; margin-top:10px; font-size:12px; color:var(--abyss-soft); }
+.eco { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+.eco a { background:var(--foam); border:1.5px solid var(--panel-line); border-radius:999px; padding:9px 16px; font-size:13px; font-weight:800; color:var(--teal-deep); }
+.eco a:hover { border-color:var(--teal); }
+footer.site { text-align:center; color:var(--abyss-soft); font-size:12.5px; padding:44px 20px 54px; border-top:1px solid var(--panel-line); margin-top:24px; }
+footer.site a { font-weight:700; }
+@media (max-width:760px){ .hero{ grid-template-columns:1fr; } .hero-card{ order:-1; } }
+</style>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BP0650KDFR"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BP0650KDFR');
+</script>
+<script>
+(function () {
+    var s = document.createElement('script');
+    s.src = 'https://aiknowledgecms.exbridge.jp/simpletrack.php'
+        + '?url=' + encodeURIComponent(location.href)
+        + '&ref=' + encodeURIComponent(document.referrer);
+    document.head.appendChild(s);
+})();
+</script>
+</head>
+<body>
+
+<header class="site"><div class="wrap">
+  <div class="hbrand">
+    <div class="ico"><img src="assets/kurage_avatar.webp" alt="Kurage"></div>
+    <div><strong>Kurage GEO</strong><span>A product of EXBRIDGE, Inc.</span></div>
+  </div>
+  <nav class="hnav">
+    <a class="btn btn-ghost" href="kgeo.html">日本語</a>
+    <a class="btn btn-ghost" href="https://github.com/katsushi2441/kgeo" target="_blank" rel="noopener">GitHub</a>
+    <a class="btn btn-primary" href="https://kurage.exbridge.jp/kgeo.php?lang=en">Start an audit</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <span class="eyebrow"><span class="dot"></span>GEO ・ AI search optimization</span>
+      <h1>Get your site <em>found by AI search.</em></h1>
+      <p class="lead">
+        <b>Kurage GEO</b> is a workspace that audits how <b>easily ChatGPT and AI search can understand and cite your website</b>.
+        A technical GEO audit, Japanese AEO scoring, and a <b>grounded LLM answer simulation</b> tell you not just a score,
+        but what to fix next — with the evidence behind every judgement.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://kurage.exbridge.jp/kgeo.php?lang=en">First audit free</a>
+        <a class="btn btn-ghost" href="https://github.com/katsushi2441/kgeo" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <img src="assets/kurage_avatar.png" alt="Kurage — the jellyfish AI VTuber">
+      <h2>Kurage</h2>
+      <p>EXBRIDGE's jellyfish AI VTuber. Audits how AI-search-ready your website is.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <p class="sub">Just register a URL — 5 steps to your AI-search readiness.</p>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><b>Register your site</b><small>Site name, public URL, and brand name.</small></div>
+      <div class="step"><span class="n">2</span><b>Technical GEO audit</b><small>Deterministic checks of robots.txt, llms.txt, JSON-LD, meta, content structure, and freshness signals.</small></div>
+      <div class="step"><span class="n">3</span><b>Japanese AEO scoring</b><small>Answer-first writing, definitions, Q&amp;A, evidence, readability, and search intent — scored independently for Japanese.</small></div>
+      <div class="step"><span class="n">4</span><b>LLM answer simulation</b><small>An LLM evaluates answerability and missing information grounded only in your page content.</small></div>
+      <div class="step"><span class="n">5</span><b>Fix and re-audit</b><small>A 100-point score with evidence-backed recommendations, saved as history to track progress.</small></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What the audit tells you</h2>
+    <p class="sub">Four angles on being found by AI search.</p>
+    <div class="chips">
+      <div class="chip">AI crawler readiness<span>robots.txt / llms.txt / AI discovery</span></div>
+      <div class="chip">Structured data<span>JSON-LD, meta info, brand consistency</span></div>
+      <div class="chip">Japanese AEO<span>Can your content answer questions?</span></div>
+      <div class="chip">47-item citability<span>RAG chunking, context efficiency, trust</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="gate">
+      <h2>Pricing — first audit free, no subscription</h2>
+      <p class="sub" style="margin-bottom:0">Pay only for what you use.</p>
+      <ul>
+        <li>The <b>first GEO audit is free</b> for each X account.</li>
+        <li>From the second audit: <b>¥200</b> or <b>20,000 URLAI</b> per audit.</li>
+        <li>PayPal and URLAI (on Base) supported. Credits are consumed <b>only when an audit succeeds</b>.</li>
+        <li>No subscription. Purchased credits never expire.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="oss-note">
+      <h2>Built on two open-source projects</h2>
+      <p>Kurage GEO uses the safe URL fetching and deterministic audits of <a href="https://github.com/Auriti-Labs/geo-optimizer-skill" target="_blank" rel="noopener">GEO Optimizer Skill</a> as its audit engine, and references the AI-visibility product design of <a href="https://github.com/AICMO/ai-cmo" target="_blank" rel="noopener">AiCMO</a>.</p>
+      <small>Kurage GEO is an independent Japanese-focused product under the MIT License — not an official localized version of either project. It does not guarantee rankings or inclusion in AI answers.</small>
+    </div>
+  </section>
+
+  <section>
+    <h2>Part of the Kurage ecosystem</h2>
+    <p class="sub">AI products running in production.</p>
+    <div class="eco">
+      <a href="https://kfreqai.exbridge.jp/" target="_blank" rel="noopener">kfreqai — crypto AI</a>
+      <a href="https://kfxai.exbridge.jp/" target="_blank" rel="noopener">kfxai — FX AI</a>
+      <a href="https://kcbrain.exbridge.jp/" target="_blank" rel="noopener">kcbrain — crypto judgment API</a>
+      <a href="https://kfxbrain.exbridge.jp/" target="_blank" rel="noopener">kfxbrain — FX judgment API</a>
+      <a href="https://kmontage.exbridge.jp/" target="_blank" rel="noopener">kmontage — explainer shorts</a>
+      <a href="https://url2ai.exbridge.jp/" target="_blank" rel="noopener">url2ai — URL publisher</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site"><div class="wrap">
+  Kurage GEO — a product of <a href="https://exbridge.jp/">EXBRIDGE, Inc.</a> ·
+  <a href="https://github.com/katsushi2441/kgeo" target="_blank" rel="noopener">GitHub</a> ·
+  <a href="kgeo.html">日本語</a> ·
+  <a href="https://exbridge.jp/contact.php">Contact</a>
+  <br><br>&copy; <span id="y"></span> EXBRIDGE, Inc.
+</div></footer>
+<script>document.getElementById('y').textContent=new Date().getFullYear();</script>
+
+</body>
+</html>
