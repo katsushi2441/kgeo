@@ -41,9 +41,7 @@ Cloud Runへ移す前に次を完了させます。
 ```bash
 scripts/configure_rqdb4ai_access.py
 systemctl --user restart rqdb4ai-api.service rqdb4ai-web-worker.service
-sudo tailscale set --operator="$USER"
-tailscale funnel --bg --yes 18300
-export KGEO_RQDB4AI_PUBLIC_URL=https://<このホストのMagicDNS名>
+sudo scripts/install_rqdb4ai_https_proxy.sh
 scripts/bootstrap_cloud_run.sh
 scripts/deploy_cloud_run.sh
 ```
@@ -56,8 +54,11 @@ Cloud RunのingressはHetemlから到達できる`all`ですが、全APIは既�
 リクエストタイムアウトは600秒です。
 
 RQDB4AIの既存HTTP公開ポートへCloud RunからBearerトークンを送ってはいけません。
-Cloud Run用の`KGEO_RQDB4AI_PUBLIC_URL`はTailscale Funnel等のHTTPS URLに限定し、
-両デプロイスクリプトがHTTPSと`/healthz`を事前検証します。0.14 Ollama自体は公開しません。
+既存の`exbridge.ddns.net:8012`のNginx/SSLにkgeo専用の限定経路を追加し、Cloud Run用の
+`KGEO_RQDB4AI_PUBLIC_URL`は既定で
+`https://exbridge.ddns.net:8012/kgeo-rqdb4ai`を使います。導入スクリプトは元設定を退避し、
+`nginx -t`失敗時には自動で復元します。両デプロイスクリプトもHTTPSと`/healthz`を
+事前検証します。0.14 Ollama自体は公開しません。
 
 ロールバック:
 

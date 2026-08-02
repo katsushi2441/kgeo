@@ -10,7 +10,7 @@ instance="${KGEO_CLOUD_SQL_INSTANCE_ID:-kgeo-db}"
 database="${KGEO_CLOUD_SQL_DATABASE:-kgeo}"
 db_user="${KGEO_CLOUD_SQL_USER:-kgeo}"
 service_account="${KGEO_CLOUD_RUN_SERVICE_ACCOUNT:-kgeo-cloud-run}"
-rqdb_public_url="${KGEO_RQDB4AI_PUBLIC_URL:-}"
+rqdb_public_url="${KGEO_RQDB4AI_PUBLIC_URL:-https://exbridge.ddns.net:8012/kgeo-rqdb4ai}"
 
 if [[ "$(gcloud billing projects describe "$project" --format='value(billingEnabled)' 2>/dev/null)" != "True" ]]; then
   echo "Cloud Billing is disabled for ${project}. Deployment was not attempted." >&2

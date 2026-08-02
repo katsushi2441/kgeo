@@ -103,9 +103,7 @@ Cloud RunではCloud SQL PostgreSQLを使用し、SQLiteをコンテナへ持ち
 ```bash
 scripts/configure_rqdb4ai_access.py
 systemctl --user restart rqdb4ai-api.service rqdb4ai-web-worker.service
-sudo tailscale set --operator="$USER"
-tailscale funnel --bg --yes 18300
-export KGEO_RQDB4AI_PUBLIC_URL=https://<このホストのMagicDNS名>
+sudo scripts/install_rqdb4ai_https_proxy.sh
 scripts/bootstrap_cloud_run.sh
 scripts/deploy_cloud_run.sh
 ```
@@ -113,4 +111,5 @@ scripts/deploy_cloud_run.sh
 `bootstrap_cloud_run.sh`は課金が無効なら、リソースを作らず終了します。緊急時は
 `scripts/rollback_to_local.sh`でPHPゲートウェイをローカルAPIへ戻せます。詳細は
 `OPERATIONS.md`を参照してください。Cloud RunからHTTPのRQDB4AI公開ポートへBearerトークンを
-送る構成は禁止し、Tailscale FunnelなどのHTTPS入口だけを指定します。
+送る構成は禁止し、既存の`exbridge.ddns.net:8012`に追加するkgeo専用HTTPS入口だけを使います。
+この入口が公開するのはヘルス確認、ジョブ投入、ジョブの状態・結果取得に必要な経路だけです。
