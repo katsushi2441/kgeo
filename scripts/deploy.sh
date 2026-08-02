@@ -16,6 +16,7 @@ upload() {
 
 upload public/kgeo.php kgeo.php
 upload public/kgeo_billing.php kgeo_billing.php
+upload public/kgeo_store.php kgeo_store.php
 upload public/kgeo_data/.htaccess kgeo_data/.htaccess
 upload static/index.html kgeo_app.html
 upload static/styles.css assets/kgeo.css
@@ -25,6 +26,12 @@ if [[ -f public/kgeo_config.php ]]; then
   upload public/kgeo_config.php kgeo_config.php
 else
   echo "missing public/kgeo_config.php; run scripts/configure_runtime.py first" >&2
+  exit 1
+fi
+if [[ -f public/kgeo_db_config.php ]]; then
+  upload public/kgeo_db_config.php kgeo_db_config.php
+else
+  echo "missing public/kgeo_db_config.php; run scripts/configure_heteml_storage.py first" >&2
   exit 1
 fi
 

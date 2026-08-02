@@ -9,5 +9,6 @@ data/*
 outputs/*
 !outputs/.gitkeep
 public/kgeo_config.php
+public/kgeo_db_config.php
 public/kgeo_data/credits.json
 *.log

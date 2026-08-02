@@ -34,7 +34,6 @@ defaults = {
     "KGEO_INTERNAL_TOKEN": token,
     "KGEO_DEV_USER": "local",
     "KGEO_DB": str(ROOT / "data" / "kgeo.db"),
-    "KGEO_DATABASE_URL": "",
     "KGEO_ADMIN_USERS": "xb_bittensor",
     "KGEO_RQDB4AI_URL": "http://127.0.0.1:18300",
     "KGEO_RQDB4AI_TOKEN": "",

@@ -11,7 +11,7 @@ Kurage GEOは、WebサイトのAI検索対応を日本語で監査し、AI回答
 - 対象ページ本文を根拠としてGemma 4／DeepSeekが回答可能性・不足情報・改善案を評価
 - 管理者のGemma 4はRQDB4AIの`ollama-192-168-0-14-web`キュー経由で直列実行
 - LLM回答本文、使用モデル、回答可能性、根拠、不足情報、改善案の履歴表示
-- ローカルSQLite／Cloud Run本番Cloud SQL PostgreSQLによるユーザー別データ分離
+- ローカルSQLite／本番Heteml MySQLによるユーザー別データ分離
 - 内部トークン＋信頼済みユーザーヘッダー方式のFastAPI
 - 共通X認証を前段に置くPHPゲートウェイ
 - Xアカウントごとに初回診断無料、2回目以降は1診断200円または20,000 URLAI
@@ -52,7 +52,8 @@ systemctl --user enable --now kgeo.service
 scripts/deploy.sh
 ```
 
-公開URLは `https://kurage.exbridge.jp/kgeo.php` です。`public/kgeo_config.php` と `.env` は秘密情報を含むためGit管理外です。
+公開URLは `https://kurage.exbridge.jp/kgeo.php` です。`public/kgeo_config.php`、
+`public/kgeo_db_config.php`、`.env`は秘密情報を含むためGit管理外です。
 
 診断課金は公開PHPゲートウェイで処理します。1回目の成功した診断は無料で、2回目以降は
 PayPalの200円決済またはBase上の20,000 URLAI送金で追加した診断クレジットを1消費します。
@@ -96,19 +97,24 @@ php tests/test_billing.php
 
 ## Cloud Run
 
-Cloud RunではCloud SQL PostgreSQLを使用し、SQLiteをコンテナへ持ち込みません。構築・移行は
-次の順で実行します。現在のローカルAPIはCloud Runのヘルス確認とデータ件数検証が終わるまで
-停止せず、最後にPHPゲートウェイの接続先だけを切り替えます。
+Cloud RunはステートレスAPIとして使い、永続データはHeteml MySQLへ保存します。
+`.heteml.lan`のDBホストはCloud Runから直接到達できないため、Heteml上の
+`kgeo_store.php`を内部トークン付きHTTPS DB APIとして利用します。Cloud SQLは使用しません。
 
 ```bash
 scripts/configure_rqdb4ai_access.py
 systemctl --user restart rqdb4ai-api.service rqdb4ai-web-worker.service
 sudo scripts/install_rqdb4ai_https_proxy.sh
+scripts/configure_heteml_storage.py --host <DBホスト> --database <DB名> --user <DBユーザー>
+scripts/deploy.sh
+set -a; source .env; set +a
+scripts/migrate_sqlite_to_heteml.py
 scripts/bootstrap_cloud_run.sh
 scripts/deploy_cloud_run.sh
 ```
 
-`bootstrap_cloud_run.sh`は課金が無効なら、リソースを作らず終了します。緊急時は
+`bootstrap_cloud_run.sh`はCloud Run用サービスアカウントとSecret Managerを準備します。
+固定費が発生するCloud SQLは作成しません。緊急時は
 `scripts/rollback_to_local.sh`でPHPゲートウェイをローカルAPIへ戻せます。詳細は
 `OPERATIONS.md`を参照してください。Cloud RunからHTTPのRQDB4AI公開ポートへBearerトークンを
 送る構成は禁止し、既存の`exbridge.ddns.net:8012`に追加するkgeo専用HTTPS入口だけを使います。

@@ -6,7 +6,7 @@
 - Default bind: `127.0.0.1:18308`
 - Health: `GET /health`
 - Persistent local data: `data/kgeo.db`
-- Secrets: `.env` and deployed `public/kgeo_config.php`（いずれもGit管理外）
+- Secrets: `.env`、`public/kgeo_config.php`、`public/kgeo_db_config.php`（Git管理外）
 
 systemdユーザーサービスとして使う場合は、`.env`を作成してから `systemd/kgeo.service` を `~/.config/systemd/user/` に配置します。サービスの導入・起動はローカル試験合格後に行います。
 
@@ -14,7 +14,9 @@ systemdユーザーサービスとして使う場合は、`.env`を作成して�
 
 ## Security boundary
 
-公開ブラウザ → 共通X認証付き `kgeo.php` → FastAPI の順に接続します。PHPだけが内部トークンを保持し、認証済みXユーザーを `X-KGeo-User` で渡します。FastAPIを直接インターネット公開しない構成を基本とします。
+公開ブラウザ → 共通X認証付き`kgeo.php` → Cloud Run FastAPIの順に接続します。
+FastAPIはHeteml上の内部トークン付き`kgeo_store.php`を経由して、Heteml MySQLへ保存します。
+DBパスワードはHeteml内のGit管理外PHP設定だけに置き、Cloud Runへは渡しません。
 
 AI回答モニタリングは認証済みXユーザーで振り分けます。`xb_bittensor` は
 Cloud RunからRQDB4AIへ投入し、`ollama-192-168-0-14-web`で直列化した上で
@@ -30,7 +32,7 @@ Cloud Runへ移す前に次を完了させます。
 
 1. API、ユーザー分離、SSRF、無料枠、モックLLMの自動テストが合格
 2. スマートフォンを含む画面操作試験が合格
-3. `scripts/migrate_sqlite_to_cloud_sql.py`によるCloud SQL PostgreSQLへのDB移行と件数検証
+3. `scripts/migrate_sqlite_to_heteml.py`によるHeteml MySQLへのDB移行と件数検証
 4. Secret Managerへ内部トークン・LLMキーを登録
 5. Heteml PHPからの呼び出しはアプリ内部トークンで認証し、ブラウザへトークンを公開しない
 6. CPU・タイムアウト・最大インスタンス数を設定し、意図しない課金を防止
@@ -42,13 +44,17 @@ Cloud Runへ移す前に次を完了させます。
 scripts/configure_rqdb4ai_access.py
 systemctl --user restart rqdb4ai-api.service rqdb4ai-web-worker.service
 sudo scripts/install_rqdb4ai_https_proxy.sh
+scripts/configure_heteml_storage.py --host <DBホスト> --database <DB名> --user <DBユーザー>
+scripts/deploy.sh
+set -a; source .env; set +a
+scripts/migrate_sqlite_to_heteml.py
 scripts/bootstrap_cloud_run.sh
 scripts/deploy_cloud_run.sh
 ```
 
-`bootstrap_cloud_run.sh`はCloud SQL、専用サービスアカウント、Secret Managerを作成します。
-`deploy_cloud_run.sh`はCloud Runへデプロイ後、SQLiteの全テーブルをCloud SQLへコピーして
-件数を検証し、認証付きヘルスチェックが成功した場合だけHetemlのPHP接続先を切り替えます。
+`bootstrap_cloud_run.sh`は専用サービスアカウントとSecret Managerを作成しますが、
+Cloud SQLは作成しません。`deploy_cloud_run.sh`はHeteml DB APIの事前確認とCloud Runの
+認証付きヘルスチェックが成功した場合だけ、HetemlのPHP接続先を切り替えます。
 Cloud RunのingressはHetemlから到達できる`all`ですが、全APIは既存の
 `X-KGeo-Token`で拒否・許可を判定します。最大インスタンス数は2、同時実行数は8、
 リクエストタイムアウトは600秒です。
@@ -66,4 +72,4 @@ RQDB4AIの既存HTTP公開ポートへCloud RunからBearerトークンを送っ
 scripts/rollback_to_local.sh
 ```
 
-SQLiteのままCloud Runへデプロイしません。
+本番データはHeteml MySQLに保存され、Cloud Runの一時ディスクには保存しません。
