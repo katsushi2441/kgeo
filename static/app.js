@@ -40,6 +40,7 @@ const TT = {
       trust_stack: "信頼性",
     },
     usage_loading: "利用状況を取得中",
+    diagnosis_admin: "管理者：課金対象外",
     diagnosis_free: "次の診断は初回無料",
     diagnosis_credits: (n) => `診断クレジット ${n}`,
     diagnosis_checking: "診断料金を確認中",
@@ -85,6 +86,7 @@ const TT = {
     err_payment: "2回目以降の診断には、200円または20,000 URLAIの診断クレジットが必要です。",
     err_free_audit: "今月の無料監査回数に達しました。",
     err_free_monitor: "今月の無料AI確認回数に達しました。",
+    btn_audit_admin: "GEO監査を実行（管理者）",
     btn_audit_free: "初回無料でGEO監査",
     btn_audit_credit: "クレジットでGEO監査",
     btn_audit_paid: "GEO監査を実行（200円 / 20,000 URLAI）",
@@ -137,6 +139,7 @@ const TT = {
       trust_stack: "Trust",
     },
     usage_loading: "Loading usage",
+    diagnosis_admin: "Admin: no billing",
     diagnosis_free: "Next audit is free",
     diagnosis_credits: (n) => `Audit credits: ${n}`,
     diagnosis_checking: "Checking pricing",
@@ -182,6 +185,7 @@ const TT = {
     err_payment: "From the second audit onward, an audit credit (¥200 or 20,000 URLAI) is required.",
     err_free_audit: "You have reached this month's free audit limit.",
     err_free_monitor: "You have reached this month's free AI check limit.",
+    btn_audit_admin: "Run GEO audit (admin)",
     btn_audit_free: "Run GEO audit (first one free)",
     btn_audit_credit: "Run GEO audit with credit",
     btn_audit_paid: "Run GEO audit (¥200 / 20,000 URLAI)",
@@ -319,9 +323,11 @@ function usageText() {
   const ml = u.monitor_runs_limit == null ? "∞" : u.monitor_runs_limit;
   const b = state.billing;
   const diagnosis = b
-    ? b.first_free
-      ? T.diagnosis_free
-      : T.diagnosis_credits(b.credits)
+    ? b.admin_bypass
+      ? T.diagnosis_admin
+      : b.first_free
+        ? T.diagnosis_free
+        : T.diagnosis_credits(b.credits)
     : T.diagnosis_checking;
   return T.usage_line(diagnosis, u.monitor_runs_used, ml);
 }
@@ -625,7 +631,9 @@ function humanError(v) {
 function updateAuditButton() {
   const button = $("#auditButton");
   if (!button || button.disabled) return;
-  if (state.billing?.first_free) {
+  if (state.billing?.admin_bypass) {
+    button.textContent = T.btn_audit_admin;
+  } else if (state.billing?.first_free) {
     button.textContent = T.btn_audit_free;
   } else if ((state.billing?.credits || 0) > 0) {
     button.textContent = T.btn_audit_credit;

@@ -29,6 +29,7 @@ if (isset($_GET['logout'])) {
 $auth = url2ai_auth_bootstrap();
 $logged_in = !empty($auth['logged_in']);
 $session_user = $logged_in ? trim((string)$auth['session_user']) : '';
+$is_admin = $logged_in && !empty($auth['is_admin']);
 if (empty($_SESSION['kgeo_csrf'])) {
     $_SESSION['kgeo_csrf'] = bin2hex(random_bytes(24));
 }
@@ -162,14 +163,16 @@ if (isset($_GET['api'])) {
         if (!$sent || !hash_equals($csrf, $sent)) { kgeo_error(403, 'CSRF検証に失敗しました'); }
     }
     if ($path === '/billing/status') {
-        $audit_count = kgeo_backend_audit_count($session_user);
+        // 管理者(xb_bittensor)は課金対象外。バックエンドの監査数集計も省略する。
+        $audit_count = $is_admin ? 0 : kgeo_backend_audit_count($session_user);
         if ($audit_count === null) { kgeo_error(502, 'Kurage GEO APIへ接続できません'); }
         header('Content-Type: application/json; charset=utf-8');
         header('Cache-Control: no-store, max-age=0');
         echo json_encode(array(
             'audits' => $audit_count,
-            'first_free' => ($audit_count === 0),
+            'first_free' => (!$is_admin && $audit_count === 0),
             'credits' => kgeo_bill_credits($session_user),
+            'admin_bypass' => $is_admin,
             'price_jpy' => KGEO_PRICE_JPY,
             'price_urlai' => KGEO_PRICE_URLAI,
             'urlai_receiver' => KGEO_URLAI_RECEIVER,
@@ -201,6 +204,8 @@ if (isset($_GET['api'])) {
         exit;
     }
     if ($method === 'POST' && preg_match('#^/api/sites/[a-f0-9]{12}/audits$#', $path)) {
+        // 管理者(xb_bittensor)は課金ゲートを通さず無料で実行する。
+        if ($is_admin) { kgeo_proxy($method, $path, $session_user); }
         $audit_count = kgeo_backend_audit_count($session_user);
         if ($audit_count === null) { kgeo_error(502, 'Kurage GEO APIへ接続できません'); }
         $gate = kgeo_bill_gate($session_user, $audit_count);
