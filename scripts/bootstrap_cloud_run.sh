@@ -58,7 +58,7 @@ fi
 if ! gcloud sql instances describe "$instance" --project "$project" >/dev/null 2>&1; then
   gcloud sql instances create "$instance" \
     --project "$project" --region "$region" --database-version=POSTGRES_16 \
-    --tier=db-f1-micro --storage-size=10 --storage-type=SSD \
+    --edition=enterprise --tier=db-f1-micro --storage-size=10 --storage-type=SSD \
     --availability-type=zonal --assign-ip \
     --server-ca-mode=GOOGLE_MANAGED_INTERNAL_CA \
     --root-password="$db_password" --quiet

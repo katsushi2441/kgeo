@@ -53,6 +53,15 @@ if ! nginx -t; then
 fi
 systemctl reload nginx
 
-curl --fail --silent --show-error --max-time 15 \
-  https://exbridge.ddns.net:8012/kgeo-rqdb4ai/healthz >/dev/null
+gateway_url="https://exbridge.ddns.net:8012/kgeo-rqdb4ai/healthz"
+for attempt in {1..10}; do
+  if curl --fail --silent --show-error --max-time 15 "$gateway_url" >/dev/null; then
+    break
+  fi
+  if [[ "$attempt" -eq 10 ]]; then
+    echo "Nginx reloaded, but the public gateway did not become ready: ${gateway_url}" >&2
+    exit 1
+  fi
+  sleep 1
+done
 echo "KGeo RQDB4AI HTTPS gateway installed. Backup: ${backup}"
