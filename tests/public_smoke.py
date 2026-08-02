@@ -13,6 +13,8 @@ with sync_playwright() as playwright:
     response = page.goto(PUBLIC_URL, wait_until="networkidle")
     assert response is not None and response.status == 200
     assert page.get_by_role("heading", name="Kurage GEO").is_visible()
+    assert "GEO Optimizer・AiCMOを日本語" in page.title()
+    assert page.get_by_role("heading", name="GEO Optimizer／AiCMOを日本語で活用").is_visible()
     assert page.locator('link[rel="canonical"]').get_attribute("href") == PUBLIC_URL
     assert page.locator('meta[property="og:image"]').get_attribute("content") == (
         "https://kurage.exbridge.jp/images/kgeo-ogp.png"
@@ -35,6 +37,11 @@ with sync_playwright() as playwright:
     sitemap_response = page.request.get("https://kurage.exbridge.jp/sitemap.php")
     assert sitemap_response.status == 200
     assert "https://kurage.exbridge.jp/kgeo.php" in sitemap_response.text()
+    llms_response = page.request.get("https://kurage.exbridge.jp/llms.txt")
+    assert llms_response.status == 200
+    assert "GEO Optimizer Skill" in llms_response.text()
+    assert "AiCMO" in llms_response.text()
+    assert "Kurage GEO" in llms_response.text()
 
     page.screenshot(path=str(OUTPUT), full_page=True)
     assert not console_errors, console_errors
