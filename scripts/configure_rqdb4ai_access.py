@@ -9,7 +9,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 KGEO_ENV = ROOT / ".env"
 RQDB_ENV = ROOT.parent / "rqdb4ai" / "rqdb4ai.env"
+RQDB_WORKER_LAUNCHER = ROOT.parent / "rqdb4ai" / "run_worker_with_aixec_env.sh"
 FUNCTION = "kgeo.jobs.ollama_chat_job"
+KGEO_PYTHONPATH = "/home/kojima/work/kgeo"
 
 
 def read_env(path: Path) -> tuple[list[str], dict[str, str]]:
@@ -77,7 +79,16 @@ def main() -> int:
             ),
         },
     )
+    if RQDB_WORKER_LAUNCHER.is_file():
+        launcher = RQDB_WORKER_LAUNCHER.read_text(encoding="utf-8")
+        if KGEO_PYTHONPATH not in launcher:
+            updated = launcher.replace(":/tmp", f":{KGEO_PYTHONPATH}:/tmp", 1)
+            if updated == launcher:
+                raise SystemExit("RQDB4AI worker PYTHONPATH could not be updated")
+            RQDB_WORKER_LAUNCHER.write_text(updated, encoding="utf-8")
+            RQDB_WORKER_LAUNCHER.chmod(0o755)
     print("Dedicated KGeo RQDB4AI access configured (token hidden).")
+    print("Restart rqdb4ai-api.service and rqdb4ai-web-worker.service to apply it.")
     return 0
 
 

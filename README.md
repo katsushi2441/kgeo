@@ -102,6 +102,7 @@ Cloud RunではCloud SQL PostgreSQLを使用し、SQLiteをコンテナへ持ち
 
 ```bash
 scripts/configure_rqdb4ai_access.py
+systemctl --user restart rqdb4ai-api.service rqdb4ai-web-worker.service
 sudo tailscale set --operator="$USER"
 tailscale funnel --bg --yes 18300
 export KGEO_RQDB4AI_PUBLIC_URL=https://<このホストのMagicDNS名>
