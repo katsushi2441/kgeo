@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="WebサイトのAI検索対応を日本語で監査し、ブランド言及と引用を継続観測するKurage GEO。">
+  <title>Kurage GEO | AI検索に、見つけてもらえるサイトへ。</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&family=Noto+Sans+JP:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Kurage GEO ホーム">
+      <span class="brand-mark" aria-hidden="true">G</span>
+      <span><b>Kurage GEO</b><small>AI Search Visibility Studio</small></span>
+    </a>
+    <div class="status"><span class="status-dot"></span><span id="serviceStatus">接続確認中</span></div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">GENERATIVE ENGINE OPTIMIZATION</p>
+        <h1>AI検索に、<br><span>見つけてもらえる</span>サイトへ。</h1>
+        <p class="lead">技術的な読みやすさを診断し、AI回答でのブランド言及・URL引用を継続して確かめます。点数だけで終わらず、次に直す箇所を日本語で示します。</p>
+      </div>
+      <aside class="hero-card" aria-label="主な診断項目">
+        <div class="radar-orbit"><span>AI</span></div>
+        <div class="mini-row"><b>8</b><span>基礎カテゴリを監査</span></div>
+        <div class="mini-row"><b>100</b><span>点満点で変化を追跡</span></div>
+        <div class="mini-row"><b>JP</b><span>改善案を日本語化</span></div>
+      </aside>
+    </section>
+
+    <section class="workspace">
+      <div class="section-head">
+        <div><p class="eyebrow">YOUR WORKSPACE</p><h2>登録サイト</h2></div>
+        <div id="usage" class="usage-chip">利用状況を取得中</div>
+      </div>
+
+      <form id="siteForm" class="new-site card">
+        <label><span>サイト名</span><input name="name" maxlength="120" placeholder="例：Kurage GEO" required></label>
+        <label><span>公開URL</span><input name="url" type="url" placeholder="https://example.jp" required></label>
+        <label><span>ブランド名</span><input name="brand_name" maxlength="120" placeholder="例：Kurage" required></label>
+        <label class="wide"><span>競合ブランド（任意・カンマ区切り）</span><input name="competitors" placeholder="競合A, 競合B"></label>
+        <button type="submit" class="primary">サイトを登録</button>
+      </form>
+
+      <div id="notice" class="notice" hidden></div>
+      <div id="sites" class="site-grid" aria-live="polite"></div>
+    </section>
+
+    <section id="detail" class="detail" hidden>
+      <div class="section-head">
+        <div><p class="eyebrow">SITE REPORT</p><h2 id="detailName">診断結果</h2><a id="detailUrl" target="_blank" rel="noopener"></a></div>
+        <button id="auditButton" class="primary">GEO監査を実行</button>
+      </div>
+
+      <div id="emptyAudit" class="empty card">まだ監査結果がありません。「GEO監査を実行」から最初の基準値を記録してください。</div>
+      <div id="auditReport" hidden>
+        <div class="score-panel card">
+          <div class="score-ring"><strong id="score">--</strong><span>/ 100</span></div>
+          <div><p class="eyebrow">GEO READINESS</p><h3 id="band">未診断</h3><p id="auditTime" class="muted"></p></div>
+        </div>
+        <div><h3>カテゴリ別スコア</h3><div id="breakdown" class="breakdown"></div></div>
+        <div class="card action-card"><h3>次に直すこと</h3><ol id="recommendations"></ol></div>
+      </div>
+
+      <div class="monitor card">
+        <div><p class="eyebrow">AI VISIBILITY MONITOR</p><h3>AI回答での見え方を確認</h3><p class="muted">ユーザーが実際に尋ねそうな質問を登録し、ブランド言及と自社URL引用を記録します。</p></div>
+        <form id="promptForm"><input name="prompt" maxlength="1000" placeholder="例：日本語で使えるGEO監査サービスを教えて" required><button class="secondary">質問を登録</button></form>
+        <div id="prompts" class="prompt-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Kurage GEO <span>— built on open GEO research, measured with evidence.</span></footer>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+[Unit]
+Description=Kurage GEO FastAPI
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/kojima/work/kgeo
+EnvironmentFile=/home/kojima/work/kgeo/.env
+ExecStart=/home/kojima/work/kgeo/.venv/bin/python -m app
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

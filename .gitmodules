@@ -1,0 +1,6 @@
+[submodule "vendor/geo-optimizer-skill"]
+	path = vendor/geo-optimizer-skill
+	url = https://github.com/Auriti-Labs/geo-optimizer-skill.git
+[submodule "vendor/ai-cmo"]
+	path = vendor/ai-cmo
+	url = https://github.com/AICMO/ai-cmo.git

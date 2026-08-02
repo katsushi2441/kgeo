@@ -1,0 +1,17 @@
+[project]
+name = "kgeo"
+version = "0.1.0"
+description = "Japanese GEO audit and AI search visibility workspace"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B"]
+ignore = ["E501"]

@@ -1,0 +1,9 @@
+.git
+.venv
+__pycache__
+.pytest_cache
+data
+outputs
+public
+tests
+vendor/ai-cmo

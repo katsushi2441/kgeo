@@ -1,0 +1,4 @@
+<?php
+// このファイルを kgeo_config.php として配置し、リポジトリには秘密を保存しません。
+define('KGEO_API_BASE', 'http://127.0.0.1:18308');
+define('KGEO_API_TOKEN', 'replace-with-a-long-random-token');
