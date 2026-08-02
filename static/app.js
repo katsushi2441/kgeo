@@ -63,7 +63,8 @@ async function loadAudits() {
 
 async function loadPrompts() {
   const items=await api(`/api/sites/${state.selected.id}/prompts`);const root=$('#prompts');
-  root.innerHTML=items.length?items.map(p=>`<div class="prompt-item"><div><p>${escapeHtml(p.prompt)}</p><span class="prompt-meta">登録 ${new Date(p.created_at).toLocaleDateString('ja-JP')}</span></div><button class="secondary" data-prompt="${p.id}">AI回答を確認</button></div>`).join(''):'<p class="muted">監視する質問はまだありません。</p>';
+  const llmReady=Boolean(state.usage&&state.usage.llm_configured);
+  root.innerHTML=(llmReady?'':'<p class="notice">AI回答監視は現在準備中です。GEO技術監査は利用できます。</p>')+(items.length?items.map(p=>`<div class="prompt-item"><div><p>${escapeHtml(p.prompt)}</p><span class="prompt-meta">登録 ${new Date(p.created_at).toLocaleDateString('ja-JP')}</span></div><button class="secondary" data-prompt="${p.id}" ${llmReady?'':'disabled'}>${llmReady?'AI回答を確認':'AI接続未設定'}</button></div>`).join(''):'<p class="muted">監視する質問はまだありません。</p>');
   root.querySelectorAll('button').forEach(btn=>btn.onclick=()=>runPrompt(btn));
 }
 

@@ -10,6 +10,8 @@
 
 systemdユーザーサービスとして使う場合は、`.env`を作成してから `systemd/kgeo.service` を `~/.config/systemd/user/` に配置します。サービスの導入・起動はローカル試験合格後に行います。
 
+公開配置では `scripts/configure_runtime.py` で秘密設定を生成し、`systemd/kgeo.service` を `~/.config/systemd/user/` へ配置してから、`scripts/deploy.sh` で `kgeo.php`、`kgeo_app.html`、`assets/kgeo.css`、`assets/kgeo.js`、秘密設定をHetemlへ配置します。
+
 ## Security boundary
 
 公開ブラウザ → 共通X認証付き `kgeo.php` → FastAPI の順に接続します。PHPだけが内部トークンを保持し、認証済みXユーザーを `X-KGeo-User` で渡します。FastAPIを直接インターネット公開しない構成を基本とします。

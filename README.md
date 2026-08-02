@@ -35,6 +35,20 @@ set -a; source .env; set +a
 
 開発時のURLは `http://127.0.0.1:18308/` です。内部トークンを設定した場合、APIには `X-KGeo-Token` と `X-KGeo-User` が必要です。ブラウザへ内部トークンを公開せず、公開環境ではPHPゲートウェイから付与します。
 
+## Kurage公開環境
+
+ローカルFastAPIとHeteml側PHPで同じ内部トークンを使う設定を生成し、公開ファイルを配置します。
+
+```bash
+.venv/bin/python scripts/configure_runtime.py
+install -m 0644 systemd/kgeo.service ~/.config/systemd/user/kgeo.service
+systemctl --user daemon-reload
+systemctl --user enable --now kgeo.service
+scripts/deploy.sh
+```
+
+公開URLは `https://kurage.exbridge.jp/kgeo.php` です。`public/kgeo_config.php` と `.env` は秘密情報を含むためGit管理外です。
+
 ## AI回答モニタリング
 
 以下を設定するとAI回答の確認が有効になります。未設定でも技術監査はすべて利用できます。

@@ -80,11 +80,17 @@ function kgeo_proxy($method, $path, $user) {
 }
 
 if (isset($_GET['asset'])) {
-    $assets = array('styles.css' => '../static/styles.css', 'app.js' => '../static/app.js');
+    $assets = array('styles.css' => 'assets/kgeo.css', 'app.js' => 'assets/kgeo.js');
     $name = (string)$_GET['asset'];
     if (!isset($assets[$name])) { http_response_code(404); exit; }
     $path = realpath(__DIR__ . '/' . $assets[$name]);
-    $root = realpath(__DIR__ . '/../static');
+    $root = realpath(__DIR__ . '/assets');
+    // ローカル開発ツリーではデプロイ用assetsの代わりに../staticを参照する。
+    if (!$path || !$root) {
+        $fallback = array('styles.css' => '../static/styles.css', 'app.js' => '../static/app.js');
+        $path = realpath(__DIR__ . '/' . $fallback[$name]);
+        $root = realpath(__DIR__ . '/../static');
+    }
     if (!$path || !$root || strpos($path, $root . DIRECTORY_SEPARATOR) !== 0) { http_response_code(404); exit; }
     header('Content-Type: ' . (substr($name, -3) === '.js' ? 'application/javascript; charset=utf-8' : 'text/css; charset=utf-8'));
     header('Cache-Control: public, max-age=3600');
@@ -111,7 +117,10 @@ if (!$logged_in):
 exit;
 endif;
 
-$html = file_get_contents(__DIR__ . '/../static/index.html');
+$html_path = file_exists(__DIR__ . '/kgeo_app.html')
+    ? __DIR__ . '/kgeo_app.html'
+    : __DIR__ . '/../static/index.html';
+$html = file_get_contents($html_path);
 $html = str_replace('href="/static/styles.css"', 'href="?asset=styles.css"', $html);
 $html = str_replace('src="/static/app.js" defer', 'src="?asset=app.js" defer', $html);
 $bootstrap = '<script>window.KGEO_API_PREFIX="?api=";window.KGEO_CSRF=' . json_encode($csrf) . ';</script>';
