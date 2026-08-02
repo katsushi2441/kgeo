@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 
-from .japanese_aeo import analyze_japanese_aeo
+from .japanese_aeo import analyze_aeo
 
 VENDOR_SRC = Path(__file__).resolve().parents[1] / "vendor" / "geo-optimizer-skill" / "src"
 if str(VENDOR_SRC) not in sys.path:
@@ -46,17 +46,22 @@ def run_audit(url: str) -> dict:
     data = dataclasses.asdict(result)
     response, error = fetch_url(target, timeout=15, max_size=2 * 1024 * 1024)
     if response is not None and not error:
-        data["japanese_aeo"] = analyze_japanese_aeo(response.text, data)
+        aeo = analyze_aeo(response.text, data)
     else:
-        data["japanese_aeo"] = {
+        aeo = {
             "checked": False,
+            "language": "unknown",
+            "analyzed_as": "unknown",
             "score": 0,
             "band": "critical",
-            "notice": f"日本語AEO判定用の本文を取得できませんでした: {error or 'unknown error'}",
+            "notice": f"AEO判定用の本文を取得できませんでした: {error or 'unknown error'}",
             "metrics": {},
             "recommendations": [],
         }
-    data["schema_version"] = 1
+    # aeo が正式キー。japanese_aeo は既存の保存済み監査・画面との互換用に残す。
+    data["aeo"] = aeo
+    data["japanese_aeo"] = aeo
+    data["schema_version"] = 2
     return data
 
 
@@ -99,7 +104,7 @@ def japanese_recommendations(result: dict) -> list[str]:
     signals = result.get("signals") or {}
     brand = result.get("brand_entity") or {}
     ai = result.get("ai_discovery") or {}
-    japanese_aeo = result.get("japanese_aeo") or {}
+    aeo = result.get("aeo") or result.get("japanese_aeo") or {}
     if result.get("error"):
         return [f"対象ページを取得できませんでした: {result['error']}"]
     if not robots.get("citation_bots_ok"):
@@ -124,7 +129,7 @@ def japanese_recommendations(result: dict) -> list[str]:
         actions.append("title・H1・構造化データでブランド名の表記を統一してください。")
     if int(ai.get("endpoints_found") or 0) == 0:
         actions.append("必要に応じてAI向け概要・FAQなどの発見用エンドポイントを整備してください。")
-    for item in japanese_aeo.get("recommendations") or []:
+    for item in aeo.get("recommendations") or []:
         if item not in actions:
             actions.append(item)
     return actions[:12]

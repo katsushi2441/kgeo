@@ -28,7 +28,7 @@ const TT = {
       definitions: "定義文",
       question_answers: "質問と回答",
       evidence: "根拠・出典",
-      readability: "日本語の読みやすさ",
+      readability: "読みやすさ",
       intent_coverage: "検索意図",
       claim_risk: "主張リスク",
     },
@@ -59,8 +59,11 @@ const TT = {
     run_failed: (m) => `LLM回答シミュレーションに失敗しました: ${m}`,
     btn_run: "本文を読ませて確認",
     btn_no_llm: "AI接続未設定",
-    aeo_notice_next: "再監査すると日本語AEO判定が追加されます。",
-    aeo_pending: "日本語AEOの詳細は次回の監査で計算されます。",
+    aeo_notice_next: "再監査するとAEO判定が追加されます。",
+    aeo_heading_ja: "日本語で「質問に答えられるか」",
+    aeo_heading_en: "英語ページとして「質問に答えられるか」",
+    aeo_heading_unknown: "「質問に答えられるか」",
+    aeo_pending: "AEOの詳細は次回の監査で計算されます。",
     claim_risk_note: "低いほど安全",
     no_estimates: "推定値がありません。",
     per100: "/ 100",
@@ -127,7 +130,7 @@ const TT = {
       definitions: "Definitions",
       question_answers: "Q&A",
       evidence: "Evidence",
-      readability: "Japanese readability",
+      readability: "Readability",
       intent_coverage: "Search intent",
       claim_risk: "Claim risk",
     },
@@ -158,8 +161,11 @@ const TT = {
     run_failed: (m) => `LLM answer simulation failed: ${m}`,
     btn_run: "Check against page content",
     btn_no_llm: "LLM not configured",
-    aeo_notice_next: "Re-run the audit to add the Japanese AEO evaluation.",
-    aeo_pending: "Japanese AEO details will be computed on the next audit.",
+    aeo_notice_next: "Re-run the audit to add the AEO evaluation.",
+    aeo_heading_ja: "Can it answer questions? (Japanese page)",
+    aeo_heading_en: "Can it answer questions? (English page)",
+    aeo_heading_unknown: "Can it answer questions?",
+    aeo_pending: "AEO details will be computed on the next audit.",
     claim_risk_note: "lower is safer",
     no_estimates: "No estimates available.",
     per100: "/ 100",
@@ -237,7 +243,7 @@ const I18N_EN = {
   band_none: "Not audited",
   h_breakdown: "Score by category",
   h_recommend: "What to fix next",
-  h_aeo: 'Can it "answer questions" in Japanese?',
+  h_aeo: 'Can it "answer questions"?',
   h_engine: "AI understanding & citation metrics",
   h_platform: "Per-platform readiness",
   note_platform:
@@ -461,8 +467,15 @@ async function runPrompt(button) {
 
 function renderAdvancedReport(result) {
   const root = $("#advancedReport");
-  const aeo = result.japanese_aeo || {};
+  const aeo = result.aeo || result.japanese_aeo || {};
   root.hidden = false;
+  // 判定に使った言語を見出しに出す（英語ページを日本語基準で見たと誤解させない）
+  const heading = $("#aeoHeading");
+  if (heading) {
+    const analyzed = aeo.analyzed_as || aeo.language;
+    heading.textContent =
+      analyzed === "en" ? T.aeo_heading_en : analyzed === "ja" ? T.aeo_heading_ja : T.aeo_heading_unknown;
+  }
   $("#aeoScore").textContent = aeo.checked ? aeo.score : "--";
   $("#aeoNotice").textContent = aeo.notice || T.aeo_notice_next;
   $("#aeoMetrics").innerHTML =

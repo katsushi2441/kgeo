@@ -142,3 +142,59 @@ def test_brand_matching_accepts_japanese_site_name_alias() -> None:
         ["株式会社エクスブリッジ"],
     )
     assert result["brand_mentioned"] is True
+
+
+def test_aeo_scores_english_page_with_english_rules() -> None:
+    """英語ページを日本語ルールで測って不当に低くしない（回帰防止）。"""
+    from app.japanese_aeo import analyze_aeo
+
+    html = """
+    <html lang="en"><body><main>
+      <h1>Kurage Project</h1>
+      <h2>What is the Kurage Project?</h2>
+      <p>Kurage Project is a family of AI and open-source products operated by EXBRIDGE, Inc.
+         It spans AI video, business automation and crypto trading.</p>
+      <h2>How much does it cost?</h2>
+      <p>Most products are free to try. Paid plans cost 200 JPY per diagnosis according to the
+         pricing page, and there is no subscription.</p>
+      <h2>Compare with alternatives</h2>
+      <p>Unlike other tools, we publish the rejected hypotheses. See the research report at
+         <a href="https://example.com/report">this source</a> for the full data.</p>
+      <h2>Contact and login</h2>
+      <p>You can sign in with X or contact us from the company page.</p>
+    </main></body></html>
+    """
+    result = analyze_aeo(html)
+
+    assert result["language"] == "en"
+    assert result["analyzed_as"] == "en"
+    assert result["metrics"]["definitions"]["found"] >= 1
+    assert result["metrics"]["question_answers"]["questions"] >= 2
+    assert result["metrics"]["intent_coverage"]["score"] >= 75
+    assert result["score"] >= 50
+
+
+def test_aeo_still_uses_japanese_rules_for_japanese_page() -> None:
+    from app.japanese_aeo import analyze_aeo
+
+    html = """
+    <html lang="ja"><body><main>
+      <h1>Kurage</h1>
+      <h2>Kurageとは何ですか？</h2>
+      <p>Kurageとは、AIとOSSのプロダクト群を指します。動画生成や自動売買を提供します。</p>
+      <h2>料金はいくらですか？</h2>
+      <p>初回は無料です。2回目以降は1回200円です。</p>
+    </main></body></html>
+    """
+    result = analyze_aeo(html)
+    assert result["language"] == "ja"
+    assert result["analyzed_as"] == "ja"
+    assert result["metrics"]["definitions"]["found"] >= 1
+
+
+def test_detect_language_falls_back_to_lang_attribute_for_short_pages() -> None:
+    from app.japanese_aeo import detect_language
+
+    assert detect_language('<html lang="en">', "hello")[0] == "en"
+    assert detect_language('<html lang="ja">', "hello")[0] == "ja"
+    assert detect_language("<html>", "hi")[0] == "unknown"
