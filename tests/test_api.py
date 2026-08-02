@@ -98,11 +98,25 @@ def test_free_audit_limit(tmp_path: Path, monkeypatch) -> None:
         assert blocked.json()["detail"] == "FREE_AUDIT_LIMIT_REACHED"
 
 
+def test_admin_name_is_normalized_for_plan(tmp_path: Path, monkeypatch) -> None:
+    configure_test(tmp_path, monkeypatch)
+    monkeypatch.setattr(config, "ADMIN_USERS", {"xb_bittensor"})
+    with TestClient(app) as client:
+        usage = client.get(
+            "/api/usage",
+            headers={**HEADERS, "X-KGeo-User": "@XB_BITTENSOR"},
+        ).json()
+        assert usage["plan"] == "admin"
+        assert usage["audits_limit"] is None
+        assert usage["monitor_runs_limit"] is None
+
+
 def test_prompt_monitoring(tmp_path: Path, monkeypatch) -> None:
     configure_test(tmp_path, monkeypatch)
 
-    async def fake_prompt(prompt: str, brand_name: str, site_url: str) -> dict:
+    async def fake_prompt(prompt: str, brand_name: str, site_url: str, owner: str) -> dict:
         assert prompt == "日本語のGEOサービスは？"
+        assert owner == "alice"
         return {
             "provider": "mock",
             "model": "mock-search",

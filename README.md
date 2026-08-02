@@ -53,15 +53,22 @@ OGP画像を再生成する場合は `.venv/bin/python scripts/build_ogp.py` を
 
 ## AI回答モニタリング
 
-以下を設定するとAI回答の確認が有効になります。未設定でも技術監査はすべて利用できます。
+AI回答の確認はXユーザー名で自動振り分けします。管理者 `xb_bittensor` は
+`192.168.0.3` のローカルOllama、それ以外の一般ユーザーはDeepSeekを利用します。
+Gemma 4はOllamaネイティブAPIへ `think: false` を明示して呼び出します。
 
 ```dotenv
-KGEO_LLM_BASE_URL=https://your-openai-compatible.example/v1
-KGEO_LLM_API_KEY=secret
-KGEO_LLM_MODEL=your-model
+KGEO_ADMIN_USERS=xb_bittensor
+KGEO_OLLAMA_BASE_URL=http://127.0.0.1:11434
+KGEO_OLLAMA_MODEL=gemma4:12b-it-qat
+KGEO_DEEPSEEK_BASE_URL=https://api.deepseek.com
+KGEO_DEEPSEEK_API_KEY=secret
+KGEO_DEEPSEEK_MODEL=deepseek-v4-flash
 ```
 
-LLMの回答は検索結果そのものを保証しません。利用するプロバイダーがWeb検索・引用URLを返せる構成かを確認し、時系列比較の観測値として扱ってください。
+秘密を別ファイルから読む場合は `KGEO_DEEPSEEK_API_KEY_FILE` と、そのファイル内の
+変数名を示す `KGEO_DEEPSEEK_API_KEY_NAME` を設定できます。LLMの回答は検索結果そのものを
+保証しません。Web検索機能を持たないモデルの回答は、時系列比較の観測値として扱ってください。
 
 ## テスト
 

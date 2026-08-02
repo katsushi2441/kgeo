@@ -16,6 +16,11 @@ systemdユーザーサービスとして使う場合は、`.env`を作成して�
 
 公開ブラウザ → 共通X認証付き `kgeo.php` → FastAPI の順に接続します。PHPだけが内部トークンを保持し、認証済みXユーザーを `X-KGeo-User` で渡します。FastAPIを直接インターネット公開しない構成を基本とします。
 
+AI回答モニタリングは認証済みXユーザーで振り分けます。`xb_bittensor` は
+`127.0.0.1:11434` の `gemma4:12b-it-qat`、それ以外はDeepSeekです。管理者名は
+`@`を除去して小文字化してから比較します。Ollamaは `/api/chat` に `think: false` を渡し、
+一般ユーザーがローカルGPUを占有しないようにします。
+
 監査対象URLはGEO Optimizerの検証器を通し、loopback、private、link-local、reserved IPと危険なリダイレクトを拒否します。レスポンス本文も上限付きストリームで取得します。
 
 ## Cloud Run migration gate

@@ -57,15 +57,16 @@ def authenticated_owner(
 def usage_status(owner: str) -> UsageStatus:
     month = datetime.now(timezone.utc).strftime("%Y-%m")
     plan = db.get_plan(owner)
-    unlimited = owner in config.ADMIN_USERS or plan != "free"
+    is_admin = monitor_service.normalize_owner(owner) in config.ADMIN_USERS
+    unlimited = is_admin or plan != "free"
     return UsageStatus(
-        plan="admin" if owner in config.ADMIN_USERS else plan,
+        plan="admin" if is_admin else plan,
         month=month,
         audits_used=db.monthly_usage(owner, "audit", month),
         audits_limit=None if unlimited else config.FREE_AUDITS_PER_MONTH,
         monitor_runs_used=db.monthly_usage(owner, "monitor", month),
         monitor_runs_limit=None if unlimited else config.FREE_MONITOR_RUNS_PER_MONTH,
-        llm_configured=monitor_service.configured(),
+        llm_configured=monitor_service.configured(owner),
     )
 
 
@@ -96,7 +97,7 @@ def health(owner: str = Depends(authenticated_owner)) -> dict:
         "service": "kgeo",
         "version": __version__,
         "authenticated": bool(owner),
-        "llm_configured": monitor_service.configured(),
+        "llm_configured": monitor_service.configured(owner),
     }
 
 
@@ -186,7 +187,7 @@ async def new_prompt_run(prompt_id: str, owner: str = Depends(authenticated_owne
         enforce_limit(owner, "monitor")
         try:
             result = await monitor_service.run_prompt(
-                prompt["prompt"], site_row["brand_name"], site_row["url"]
+                prompt["prompt"], site_row["brand_name"], site_row["url"], owner
             )
         except (RuntimeError, httpx.HTTPError, KeyError, IndexError, TypeError) as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc

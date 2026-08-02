@@ -1,7 +1,8 @@
 import pytest
 
+from app import config
 from app.audit_service import japanese_recommendations, validate_target
-from app.monitor_service import analyze_response
+from app.monitor_service import analyze_response, configured, provider_for
 
 
 @pytest.mark.parametrize(
@@ -29,6 +30,15 @@ def test_monitor_response_analysis() -> None:
     assert result["domain_cited"] is True
     assert result["citation_rank"] == 1
     assert len(result["cited_urls"]) == 2
+
+
+def test_llm_provider_is_selected_by_owner(monkeypatch) -> None:
+    monkeypatch.setattr(config, "ADMIN_USERS", {"xb_bittensor"})
+    monkeypatch.setattr(config, "DEEPSEEK_API_KEY", "test-key")
+    assert provider_for("@XB_BITTENSOR") == "ollama"
+    assert provider_for("alice") == "deepseek"
+    assert configured("xb_bittensor") is True
+    assert configured("alice") is True
 
 
 def test_japanese_actions_are_based_on_missing_facts() -> None:
