@@ -5,9 +5,11 @@ Kurage GEOは、WebサイトのAI検索対応を日本語で監査し、AI回答
 ## 現在の実装範囲
 
 - 公開URLのGEO技術監査（robots.txt、llms.txt、JSON-LD、meta、本文、更新シグナル、AI discovery、ブランド整合性）
-- 100点スコア、カテゴリ別内訳、改善案の日本語表示、履歴保存
-- OpenAI互換LLMを利用した検索質問モニタリング
-- ブランド言及、自社ドメイン引用、引用順位、引用URLの保存
+- 日本語専用AEO監査（結論先出し、定義文、質問回答、根拠、読みやすさ、検索意図、主張リスク）
+- GEO Optimizerが生成する47項目の引用適性、RAG、文脈効率、検索意図、信頼性、プラットフォーム別準備度の可視化
+- 100点スコア、カテゴリ別内訳、根拠付き改善案、履歴保存
+- 対象ページ本文を根拠としてGemma 4／DeepSeekが回答可能性・不足情報・改善案を評価
+- LLM回答本文、使用モデル、回答可能性、根拠、不足情報、改善案の履歴表示
 - SQLiteによるユーザー別データ分離
 - 内部トークン＋信頼済みユーザーヘッダー方式のFastAPI
 - 共通X認証を前段に置くPHPゲートウェイ
@@ -51,7 +53,7 @@ scripts/deploy.sh
 
 OGP画像を再生成する場合は `.venv/bin/python scripts/build_ogp.py` を実行します。生成元は `assets/ogp/`、公開画像は `static/images/kgeo-ogp.png`（1200×630）です。
 
-## AI回答モニタリング
+## 根拠付きLLM回答シミュレーション
 
 AI回答の確認はXユーザー名で自動振り分けします。管理者 `xb_bittensor` は
 `192.168.0.3` のローカルOllama、それ以外の一般ユーザーはDeepSeekを利用します。
@@ -67,8 +69,10 @@ KGEO_DEEPSEEK_MODEL=deepseek-v4-flash
 ```
 
 秘密を別ファイルから読む場合は `KGEO_DEEPSEEK_API_KEY_FILE` と、そのファイル内の
-変数名を示す `KGEO_DEEPSEEK_API_KEY_NAME` を設定できます。LLMの回答は検索結果そのものを
-保証しません。Web検索機能を持たないモデルの回答は、時系列比較の観測値として扱ってください。
+変数名を示す `KGEO_DEEPSEEK_API_KEY_NAME` を設定できます。対象ページの公開本文をLLMへ渡し、
+その本文だけで質問へ答えられるかをJSON形式で評価します。これはChatGPT、Gemini、Perplexity
+などの実際の検索結果や掲載順位ではありません。画面でも「対象ページ本文を使ったシミュレーション」
+と明記し、GEO技術監査、日本語AEO準備度、外部AI検索での実測を混同しないようにしています。
 
 ## テスト
 

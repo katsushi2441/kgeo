@@ -81,6 +81,8 @@ class PromptRun(BaseModel):
     citation_rank: int | None = None
     cited_urls: list[str]
     response_text: str
+    evaluation_mode: str = "legacy-unverified"
+    analysis: dict = Field(default_factory=dict)
     error: str | None = None
     created_at: str
 

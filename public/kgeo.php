@@ -113,8 +113,8 @@ if (isset($_GET['api'])) {
 if (!$logged_in):
 ?><!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kurage GEO | GEO Optimizer・AiCMOを日本語で使えるGEO診断</title>
-<meta name="description" content="OSSのGEO Optimizerを監査中核に、AiCMOのAI検索可視性設計を参考に日本語向けへ再構成。GEO技術監査、改善提案、ブランド言及・URL引用の観測ができます。">
-<meta name="keywords" content="GEO Optimizer 日本語,AiCMO 日本語,GEO 日本語,AI検索対策,生成AI SEO,LLMO,Kurage GEO">
+<meta name="description" content="OSSのGEO Optimizerを監査中核に、AiCMOの設計を参考に日本語向けへ再構成。GEO技術監査、日本語AEO診断、根拠付きLLM回答シミュレーションを提供します。">
+<meta name="keywords" content="GEO Optimizer 日本語,AiCMO 日本語,GEO 日本語,AEO 日本語,回答エンジン最適化,AI検索対策,生成AI SEO,LLMO,Kurage GEO">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="author" content="Kurageプロジェクト">
 <meta name="theme-color" content="#0c9bae">
@@ -123,7 +123,7 @@ if (!$logged_in):
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Kurageプロジェクト">
 <meta property="og:title" content="Kurage GEO — GEO Optimizer／AiCMOを日本語で活用">
-<meta property="og:description" content="GEO Optimizerの監査機能とAiCMOの可視性設計を、日本語で使えるGEOワークスペースへ。">
+<meta property="og:description" content="GEO技術監査、日本語AEO診断、対象ページを根拠にしたLLM回答シミュレーションを一つの日本語画面で。">
 <meta property="og:url" content="https://kurage.exbridge.jp/kgeo.php">
 <meta property="og:image" content="https://kurage.exbridge.jp/images/kgeo-ogp.png">
 <meta property="og:image:secure_url" content="https://kurage.exbridge.jp/images/kgeo-ogp.png">
@@ -133,16 +133,16 @@ if (!$logged_in):
 <meta property="og:locale" content="ja_JP">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Kurage GEO — GEO Optimizer／AiCMOを日本語で活用">
-<meta name="twitter:description" content="OSSを日本語で使えるGEO監査・AI検索可視性ワークスペースへ再構成。">
+<meta name="twitter:description" content="GEO技術監査、日本語AEO診断、根拠付きLLM回答シミュレーションを一つの日本語画面で。">
 <meta name="twitter:image" content="https://kurage.exbridge.jp/images/kgeo-ogp.png">
 <script type="application/ld+json">
 {
   "@context":"https://schema.org",
   "@type":"WebApplication",
   "name":"Kurage GEO",
-  "alternateName":["日本語GEO・AI検索可視性ワークスペース","GEO Optimizer・AiCMO日本語GEOツール"],
+  "alternateName":["日本語GEO・AEO診断ワークスペース","GEO Optimizer・AiCMO日本語GEOツール"],
   "url":"https://kurage.exbridge.jp/kgeo.php",
-  "description":"OSSのGEO Optimizerを監査中核に使い、AiCMOのAI検索可視性設計を参考に、日本語の監査・改善提案・ブランド言及・URL引用観測へ再構成したGEOワークスペース。",
+  "description":"OSSのGEO Optimizerを監査中核に使い、AiCMOの設計を参考に、日本語AEO診断と対象ページを根拠にしたLLM回答シミュレーションを追加したGEOワークスペース。",
   "applicationCategory":"BusinessApplication",
   "operatingSystem":"Web",
   "inLanguage":"ja",
@@ -150,12 +150,12 @@ if (!$logged_in):
   "image":"https://kurage.exbridge.jp/images/kgeo-ogp.png",
   "codeRepository":"https://github.com/katsushi2441/kgeo",
   "license":"https://opensource.org/license/mit",
-  "keywords":"GEO Optimizer 日本語, AiCMO 日本語, GEO, AI検索対策, LLMO, 生成AI SEO",
+  "keywords":"GEO Optimizer 日本語, AiCMO 日本語, GEO, AEO 日本語, 回答エンジン最適化, AI検索対策, LLMO, 生成AI SEO",
   "isBasedOn":[
     {"@type":"SoftwareSourceCode","name":"GEO Optimizer Skill","codeRepository":"https://github.com/Auriti-Labs/geo-optimizer-skill","license":"https://opensource.org/license/mit"},
     {"@type":"SoftwareSourceCode","name":"AiCMO","codeRepository":"https://github.com/AICMO/ai-cmo","license":"https://opensource.org/license/mit"}
   ],
-  "featureList":["GEO OptimizerによるGEO技術監査","AIクローラー許可診断","llms.txt診断","構造化データ診断","改善提案の日本語表示","AiCMOを参考にしたブランド言及・URL引用の記録"],
+  "featureList":["GEO OptimizerによるGEO技術監査","AIクローラー許可診断","llms.txt診断","構造化データ診断","日本語AEOの独立採点","47項目の引用適性診断","対象ページを根拠にしたLLM回答シミュレーション"],
   "publisher":{"@type":"Organization","name":"Kurageプロジェクト","url":"https://kurage.exbridge.jp/"}
 }
 </script>
@@ -164,7 +164,7 @@ if (!$logged_in):
   "@context":"https://schema.org",
   "@type":"FAQPage",
   "mainEntity":[
-    {"@type":"Question","name":"GEO Optimizerを日本語で使えますか？","acceptedAnswer":{"@type":"Answer","text":"Kurage GEOはGEO Optimizerの決定論的な監査機能を中核に使い、監査結果と改善案を日本語画面で確認できるよう再構成しています。公式日本語版ではありません。"}},
+    {"@type":"Question","name":"GEO Optimizerを日本語で使えますか？","acceptedAnswer":{"@type":"Answer","text":"Kurage GEOはGEO Optimizerの決定論的な監査機能を中核に使い、監査結果を日本語画面で確認できます。さらに日本語固有の回答先出し、定義、Q&A、根拠、可読性、検索意図、断定リスクを独立採点します。公式日本語版ではありません。"}},
     {"@type":"Question","name":"AiCMOとの関係は何ですか？","acceptedAnswer":{"@type":"Answer","text":"AiCMOの企業・競合・監視質問・実行履歴・AI可視性という設計を参考に、Kurage GEO独自の軽量な日本語データモデルとして実装しています。AiCMO全体を翻訳した公式版ではありません。"}},
     {"@type":"Question","name":"SEOとGEOの違いは何ですか？","acceptedAnswer":{"@type":"Answer","text":"SEOは主に検索結果での発見性を改善し、GEOは生成AIやAI検索が内容を理解・引用しやすい技術構成と情報表現を整えます。Kurage GEOはrobots.txt、llms.txt、構造化データ、本文構造などを監査します。"}}
   ]

@@ -187,7 +187,11 @@ async def new_prompt_run(prompt_id: str, owner: str = Depends(authenticated_owne
         enforce_limit(owner, "monitor")
         try:
             result = await monitor_service.run_prompt(
-                prompt["prompt"], site_row["brand_name"], site_row["url"], owner
+                prompt["prompt"],
+                site_row["brand_name"],
+                site_row["url"],
+                owner,
+                [site_row["name"]],
             )
         except (RuntimeError, httpx.HTTPError, KeyError, IndexError, TypeError) as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc

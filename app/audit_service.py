@@ -5,11 +5,16 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
+from bs4 import BeautifulSoup
+
+from .japanese_aeo import analyze_japanese_aeo
+
 VENDOR_SRC = Path(__file__).resolve().parents[1] / "vendor" / "geo-optimizer-skill" / "src"
 if str(VENDOR_SRC) not in sys.path:
     sys.path.insert(0, str(VENDOR_SRC))
 
 from geo_optimizer.core.audit import run_full_audit  # noqa: E402
+from geo_optimizer.utils.http import fetch_url  # noqa: E402
 from geo_optimizer.utils.validators import validate_public_url  # noqa: E402
 
 CATEGORY_LABELS = {
@@ -39,8 +44,48 @@ def run_audit(url: str) -> dict:
     target = validate_target(url)
     result = run_full_audit(target, use_cache=False)
     data = dataclasses.asdict(result)
+    response, error = fetch_url(target, timeout=15, max_size=2 * 1024 * 1024)
+    if response is not None and not error:
+        data["japanese_aeo"] = analyze_japanese_aeo(response.text, data)
+    else:
+        data["japanese_aeo"] = {
+            "checked": False,
+            "score": 0,
+            "band": "critical",
+            "notice": f"日本語AEO判定用の本文を取得できませんでした: {error or 'unknown error'}",
+            "metrics": {},
+            "recommendations": [],
+        }
     data["schema_version"] = 1
     return data
+
+
+def fetch_site_context(url: str, max_chars: int = 12000) -> str:
+    """Fetch public page text for a grounded local-LLM evaluation."""
+
+    target = validate_target(url)
+    response, error = fetch_url(target, timeout=15, max_size=2 * 1024 * 1024)
+    if response is None or error:
+        raise RuntimeError(f"対象ページを取得できませんでした: {error or 'unknown error'}")
+    soup = BeautifulSoup(response.text, "lxml")
+    for tag in soup(["script", "style", "noscript", "svg", "template", "form"]):
+        tag.decompose()
+    root = soup.find("main") or soup.find("article") or soup.body or soup
+    parts: list[str] = []
+    if soup.title and soup.title.string:
+        parts.append(f"ページタイトル: {soup.title.string.strip()}")
+    description = soup.find("meta", attrs={"name": "description"})
+    if description and description.get("content"):
+        parts.append(f"概要: {str(description['content']).strip()}")
+    for node in root.find_all(["h1", "h2", "h3", "p", "li", "th", "td"]):
+        value = " ".join(node.get_text(" ", strip=True).split())
+        if value and (not parts or value != parts[-1]):
+            prefix = "見出し: " if node.name in {"h1", "h2", "h3"} else ""
+            parts.append(prefix + value)
+    context = "\n".join(parts)
+    if not context.strip():
+        raise RuntimeError("対象ページから評価可能な本文を抽出できませんでした")
+    return context[:max_chars]
 
 
 def japanese_recommendations(result: dict) -> list[str]:
@@ -54,6 +99,7 @@ def japanese_recommendations(result: dict) -> list[str]:
     signals = result.get("signals") or {}
     brand = result.get("brand_entity") or {}
     ai = result.get("ai_discovery") or {}
+    japanese_aeo = result.get("japanese_aeo") or {}
     if result.get("error"):
         return [f"対象ページを取得できませんでした: {result['error']}"]
     if not robots.get("citation_bots_ok"):
@@ -78,4 +124,7 @@ def japanese_recommendations(result: dict) -> list[str]:
         actions.append("title・H1・構造化データでブランド名の表記を統一してください。")
     if int(ai.get("endpoints_found") or 0) == 0:
         actions.append("必要に応じてAI向け概要・FAQなどの発見用エンドポイントを整備してください。")
-    return actions[:10]
+    for item in japanese_aeo.get("recommendations") or []:
+        if item not in actions:
+            actions.append(item)
+    return actions[:12]

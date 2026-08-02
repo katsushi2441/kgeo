@@ -114,12 +114,26 @@ def test_admin_name_is_normalized_for_plan(tmp_path: Path, monkeypatch) -> None:
 def test_prompt_monitoring(tmp_path: Path, monkeypatch) -> None:
     configure_test(tmp_path, monkeypatch)
 
-    async def fake_prompt(prompt: str, brand_name: str, site_url: str, owner: str) -> dict:
+    async def fake_prompt(
+        prompt: str,
+        brand_name: str,
+        site_url: str,
+        owner: str,
+        brand_aliases: list[str] | None = None,
+    ) -> dict:
         assert prompt == "日本語のGEOサービスは？"
         assert owner == "alice"
+        assert brand_aliases == ["Kurage GEO"]
         return {
             "provider": "mock",
             "model": "mock-search",
+            "evaluation_mode": "grounded-site-simulation",
+            "analysis": {
+                "answerability_score": 88,
+                "supported_points": ["日本語対応"],
+                "missing_information": [],
+                "improvement_suggestions": ["料金を追加"],
+            },
             "brand_mentioned": True,
             "domain_cited": True,
             "citation_rank": 1,
@@ -142,6 +156,10 @@ def test_prompt_monitoring(tmp_path: Path, monkeypatch) -> None:
         assert run.status_code == 200
         assert run.json()["brand_mentioned"] is True
         assert run.json()["domain_cited"] is True
+        assert run.json()["evaluation_mode"] == "grounded-site-simulation"
+        assert run.json()["analysis"]["answerability_score"] == 88
+        history = client.get(f"/api/prompts/{prompt['id']}/runs", headers=HEADERS).json()
+        assert history[0]["analysis"]["improvement_suggestions"] == ["料金を追加"]
         usage = client.get("/api/usage", headers=HEADERS).json()
         assert usage["monitor_runs_used"] == 1
 

@@ -60,6 +60,8 @@ CREATE TABLE IF NOT EXISTS prompt_runs (
     citation_rank INTEGER,
     cited_urls_json TEXT NOT NULL DEFAULT '[]',
     response_text TEXT NOT NULL DEFAULT '',
+    evaluation_mode TEXT NOT NULL DEFAULT 'legacy-unverified',
+    analysis_json TEXT NOT NULL DEFAULT '{}',
     error TEXT,
     created_at TEXT NOT NULL
 );
@@ -91,6 +93,13 @@ def connect() -> Iterator[sqlite3.Connection]:
 def init_db() -> None:
     with connect() as conn:
         conn.executescript(SCHEMA)
+        columns = {row["name"] for row in conn.execute("PRAGMA table_info(prompt_runs)")}
+        if "evaluation_mode" not in columns:
+            conn.execute(
+                "ALTER TABLE prompt_runs ADD COLUMN evaluation_mode TEXT NOT NULL DEFAULT 'legacy-unverified'"
+            )
+        if "analysis_json" not in columns:
+            conn.execute("ALTER TABLE prompt_runs ADD COLUMN analysis_json TEXT NOT NULL DEFAULT '{}'")
 
 
 def ensure_user(owner: str) -> None:
@@ -238,11 +247,14 @@ def save_prompt_run(owner: str, prompt_id: str, result: dict) -> dict:
         conn.execute(
             """INSERT INTO prompt_runs
                (id, prompt_id, owner, provider, model, brand_mentioned, domain_cited,
-                citation_rank, cited_urls_json, response_text, error, created_at)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                citation_rank, cited_urls_json, response_text, evaluation_mode, analysis_json,
+                error, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (run_id, prompt_id, owner, result["provider"], result["model"],
              int(result["brand_mentioned"]), int(result["domain_cited"]), result["citation_rank"],
              json.dumps(result["cited_urls"], ensure_ascii=False), result["response_text"],
+             result.get("evaluation_mode", "legacy-unverified"),
+             json.dumps(result.get("analysis", {}), ensure_ascii=False),
              result.get("error"), created),
         )
     add_usage(owner, "monitor", run_id)
@@ -258,6 +270,7 @@ def get_prompt_run(owner: str, run_id: str) -> dict | None:
     item["brand_mentioned"] = bool(item["brand_mentioned"])
     item["domain_cited"] = bool(item["domain_cited"])
     item["cited_urls"] = json.loads(item.pop("cited_urls_json"))
+    item["analysis"] = json.loads(item.pop("analysis_json", "{}"))
     return item
 
 
@@ -273,6 +286,7 @@ def list_prompt_runs(owner: str, prompt_id: str) -> list[dict]:
         item["brand_mentioned"] = bool(item["brand_mentioned"])
         item["domain_cited"] = bool(item["domain_cited"])
         item["cited_urls"] = json.loads(item.pop("cited_urls_json"))
+        item["analysis"] = json.loads(item.pop("analysis_json", "{}"))
         items.append(item)
     return items
 
