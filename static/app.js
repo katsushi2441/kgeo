@@ -1,5 +1,5 @@
 const $ = (selector) => document.querySelector(selector);
-const state = { sites: [], selected: null, usage: null };
+const state = { sites: [], selected: null, usage: null, billing: null };
 const labels = {
   robots: "AIクローラー",
   llms: "llms.txt",
@@ -46,7 +46,9 @@ async function api(path, options = {}) {
     try {
       detail = (await response.json()).detail || detail;
     } catch (_) {}
-    throw new Error(detail);
+    const error = new Error(detail);
+    error.status = response.status;
+    throw error;
   }
   return response.json();
 }
@@ -60,9 +62,14 @@ function notice(message = "") {
 function usageText() {
   const u = state.usage;
   if (!u) return "利用状況を取得中";
-  const al = u.audits_limit == null ? "∞" : u.audits_limit,
-    ml = u.monitor_runs_limit == null ? "∞" : u.monitor_runs_limit;
-  return `今月 監査 ${u.audits_used}/${al} ・ AI確認 ${u.monitor_runs_used}/${ml}`;
+  const ml = u.monitor_runs_limit == null ? "∞" : u.monitor_runs_limit;
+  const b = state.billing;
+  const diagnosis = b
+    ? b.first_free
+      ? "次の診断は初回無料"
+      : `診断クレジット ${b.credits}`
+    : "診断料金を確認中";
+  return `${diagnosis} ・ 今月 AI確認 ${u.monitor_runs_used}/${ml}`;
 }
 
 function renderSites() {
@@ -90,12 +97,23 @@ function renderSites() {
 
 async function loadAll() {
   try {
-    const [sites, usage] = await Promise.all([
+    const billingRequest = window.KGEO_API_PREFIX
+      ? api("/billing/status")
+      : Promise.resolve({
+          audits: 0,
+          first_free: true,
+          credits: 0,
+          price_jpy: 200,
+          price_urlai: 20000,
+        });
+    const [sites, usage, billing] = await Promise.all([
       api("/api/sites"),
       api("/api/usage"),
+      billingRequest,
     ]);
     state.sites = sites;
     state.usage = usage;
+    state.billing = billing;
     $("#usage").textContent = usageText();
     renderSites();
     $(".status").classList.add("ok");
@@ -113,6 +131,7 @@ async function selectSite(id) {
   $("#detailName").textContent = state.selected.name;
   $("#detailUrl").textContent = state.selected.url;
   $("#detailUrl").href = state.selected.url;
+  updateAuditButton();
   $("#detail").scrollIntoView({ behavior: "smooth", block: "start" });
   await Promise.all([loadAudits(), loadPrompts()]);
 }
@@ -297,8 +316,9 @@ $("#siteForm").addEventListener("submit", async (e) => {
   }
 });
 
-$("#auditButton").addEventListener("click", async (e) => {
-  const b = e.currentTarget;
+async function runAudit() {
+  if (!state.selected) return;
+  const b = $("#auditButton");
   b.disabled = true;
   b.textContent = "安全に監査中…";
   notice("ページ・robots.txt・llms.txt・構造化データなどを確認しています。");
@@ -309,12 +329,19 @@ $("#auditButton").addEventListener("click", async (e) => {
     state.selected = state.sites.find((s) => s.id === state.selected.id);
     await loadAudits();
   } catch (err) {
+    if (err.status === 402 || err.message === "PAYMENT_REQUIRED") {
+      notice("2回目以降の診断には、診断クレジットが必要です。");
+      await openBilling();
+      return;
+    }
     notice(`監査に失敗しました: ${humanError(err.message)}`);
   } finally {
     b.disabled = false;
-    b.textContent = "GEO監査を実行";
+    updateAuditButton();
   }
-});
+}
+
+$("#auditButton").addEventListener("click", runAudit);
 
 $("#promptForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -338,12 +365,145 @@ $("#promptForm").addEventListener("submit", async (e) => {
 });
 
 function humanError(v) {
+  if (v === "PAYMENT_REQUIRED")
+    return "2回目以降の診断には、200円または20,000 URLAIの診断クレジットが必要です。";
   if (v === "FREE_AUDIT_LIMIT_REACHED")
     return "今月の無料監査回数に達しました。";
   if (v === "FREE_MONITOR_LIMIT_REACHED")
     return "今月の無料AI確認回数に達しました。";
   return v;
 }
+
+function updateAuditButton() {
+  const button = $("#auditButton");
+  if (!button || button.disabled) return;
+  if (state.billing?.first_free) {
+    button.textContent = "初回無料でGEO監査";
+  } else if ((state.billing?.credits || 0) > 0) {
+    button.textContent = "クレジットでGEO監査";
+  } else {
+    button.textContent = "GEO監査を実行（200円 / 20,000 URLAI）";
+  }
+}
+
+function billingSay(message, ok = false) {
+  const box = $("#billingMsg");
+  box.textContent = message;
+  box.classList.toggle("ok", ok);
+}
+
+async function refreshBilling() {
+  if (!window.KGEO_API_PREFIX) return state.billing;
+  state.billing = await api("/billing/status");
+  $("#usage").textContent = usageText();
+  updateAuditButton();
+  return state.billing;
+}
+
+async function openBilling() {
+  const dialog = $("#billingDialog");
+  if (!dialog.open) dialog.showModal();
+  billingSay("決済情報を確認しています…");
+  try {
+    const info = await refreshBilling();
+    $("#billingCredits").textContent = String(info.credits);
+    $("#billingReceiver").textContent = info.urlai_receiver || "-";
+    billingSay("支払い方法を選択してください。");
+    mountPaypal();
+  } catch (error) {
+    billingSay(`決済情報を取得できませんでした: ${humanError(error.message)}`);
+  }
+}
+
+async function billingGranted(data) {
+  state.billing = { ...(state.billing || {}), credits: data.credits };
+  $("#billingCredits").textContent = String(data.credits);
+  $("#usage").textContent = usageText();
+  billingSay(`${data.message} 診断を自動的に再開します。`, true);
+  window.setTimeout(() => {
+    $("#billingDialog").close();
+    runAudit();
+  }, 1200);
+}
+
+function mountPaypal() {
+  const info = state.billing;
+  const box = $("#kgeoPaypalButtons");
+  if (!info?.paypal_client_id || box.dataset.mounted) return;
+  const boot = () => {
+    if (!window.paypal?.Buttons || box.dataset.mounted) return;
+    box.dataset.mounted = "1";
+    window.paypal
+      .Buttons({
+        style: { layout: "horizontal", height: 38, tagline: false },
+        createOrder: (_data, actions) =>
+          actions.order.create({
+            purchase_units: [
+              {
+                description: "Kurage GEO 診断1回",
+                amount: {
+                  currency_code: "JPY",
+                  value: String(info.price_jpy),
+                },
+              },
+            ],
+          }),
+        onApprove: (_data, actions) =>
+          actions.order.capture().then(async (order) => {
+            try {
+              const result = await api("/billing/paypal", {
+                method: "POST",
+                body: JSON.stringify({ order_id: order.id }),
+              });
+              if (result.ok) await billingGranted(result);
+              else billingSay(result.message || "決済を確認できませんでした。");
+            } catch (error) {
+              billingSay(`決済確認に失敗しました: ${humanError(error.message)}`);
+            }
+          }),
+        onError: () =>
+          billingSay("PayPal決済でエラーが発生しました。時間をおいて再試行してください。"),
+      })
+      .render("#kgeoPaypalButtons");
+  };
+  if (window.paypal) {
+    boot();
+    return;
+  }
+  const script = document.createElement("script");
+  script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(info.paypal_client_id)}&currency=JPY`;
+  script.onload = boot;
+  script.onerror = () => billingSay("PayPalの決済画面を読み込めませんでした。");
+  document.head.appendChild(script);
+}
+
+async function verifyUrlai() {
+  const wallet = $("#billingWallet").value.trim();
+  if (!wallet) {
+    billingSay("送金元ウォレットアドレスを入力してください。");
+    return;
+  }
+  billingSay("Baseチェーン上の送金を確認しています…");
+  const button = $("#billingVerifyUrlai");
+  button.disabled = true;
+  try {
+    const result = await api("/billing/urlai", {
+      method: "POST",
+      body: JSON.stringify({ wallet }),
+    });
+    if (result.ok) await billingGranted(result);
+    else billingSay(result.message || "送金を確認できませんでした。");
+  } catch (error) {
+    billingSay(`送金確認に失敗しました: ${humanError(error.message)}`);
+  } finally {
+    button.disabled = false;
+  }
+}
+
+$("#billingClose").addEventListener("click", () =>
+  $("#billingDialog").close(),
+);
+$("#billingVerifyUrlai").addEventListener("click", verifyUrlai);
 function escapeHtml(value) {
   const d = document.createElement("div");
   d.textContent = value;

@@ -86,16 +86,17 @@ def test_site_audit_lifecycle_and_owner_isolation(tmp_path: Path, monkeypatch) -
         ).json() == []
 
 
-def test_free_audit_limit(tmp_path: Path, monkeypatch) -> None:
+def test_audit_billing_is_delegated_to_public_gateway(tmp_path: Path, monkeypatch) -> None:
     configure_test(tmp_path, monkeypatch)
     monkeypatch.setattr(config, "FREE_AUDITS_PER_MONTH", 1)
     monkeypatch.setattr("app.main.audit_service.run_audit", fake_audit)
     with TestClient(app) as client:
         site = create_site(client)
         assert client.post(f"/api/sites/{site['id']}/audits", headers=HEADERS).status_code == 200
-        blocked = client.post(f"/api/sites/{site['id']}/audits", headers=HEADERS)
-        assert blocked.status_code == 429
-        assert blocked.json()["detail"] == "FREE_AUDIT_LIMIT_REACHED"
+        second = client.post(f"/api/sites/{site['id']}/audits", headers=HEADERS)
+        assert second.status_code == 200
+        usage = client.get("/api/usage", headers=HEADERS).json()
+        assert usage["audits_limit"] is None
 
 
 def test_admin_name_is_normalized_for_plan(tmp_path: Path, monkeypatch) -> None:

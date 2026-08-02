@@ -2,6 +2,7 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/auth_common.php';
 require_once __DIR__ . '/kgeo_config.php';
+require_once __DIR__ . '/kgeo_billing.php';
 date_default_timezone_set('Asia/Tokyo');
 
 $THIS_FILE = 'kgeo.php';
@@ -31,6 +32,8 @@ function kgeo_error($status, $detail) {
 }
 
 function kgeo_route_allowed($path, $method) {
+    if ($path === '/billing/status') { return $method === 'GET'; }
+    if (in_array($path, array('/billing/paypal', '/billing/urlai'), true)) { return $method === 'POST'; }
     if (in_array($path, array('/health', '/api/usage', '/api/sites'), true)) {
         return ($path === '/api/sites') ? in_array($method, array('GET', 'POST'), true) : $method === 'GET';
     }
@@ -42,7 +45,39 @@ function kgeo_route_allowed($path, $method) {
     return false;
 }
 
-function kgeo_proxy($method, $path, $user) {
+function kgeo_backend_get($path, $user) {
+    $ch = curl_init(rtrim(KGEO_API_BASE, '/') . $path);
+    curl_setopt_array($ch, array(
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 8,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTPHEADER => array(
+            'Accept: application/json',
+            'X-KGeo-Token: ' . KGEO_API_TOKEN,
+            'X-KGeo-User: ' . $user,
+        ),
+    ));
+    $body = curl_exec($ch);
+    $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    return array($status, json_decode((string)$body, true));
+}
+
+function kgeo_backend_audit_count($user) {
+    list($status, $sites) = kgeo_backend_get('/api/sites', $user);
+    if ($status !== 200 || !is_array($sites)) { return null; }
+    $count = 0;
+    foreach ($sites as $site) {
+        $site_id = isset($site['id']) ? (string)$site['id'] : '';
+        if (!preg_match('/^[a-f0-9]{12}$/', $site_id)) { continue; }
+        list($audit_status, $audits) = kgeo_backend_get('/api/sites/' . $site_id . '/audits', $user);
+        if ($audit_status !== 200 || !is_array($audits)) { return null; }
+        $count += count($audits);
+    }
+    return $count;
+}
+
+function kgeo_proxy($method, $path, $user, $billing_mode = null) {
     $headers = array(
         'Accept: application/json',
         'Content-Type: application/json',
@@ -72,6 +107,10 @@ function kgeo_proxy($method, $path, $user) {
     $error = curl_error($ch);
     curl_close($ch);
     if ($body === false || $error !== '') { kgeo_error(502, 'Kurage GEO APIへ接続できません'); }
+    // 無料枠の確定またはクレジット消費は、診断が成功した場合だけ行う。
+    if ($billing_mode !== null && $status >= 200 && $status < 300) {
+        kgeo_bill_commit($user, $billing_mode);
+    }
     http_response_code($status ?: 502);
     header('Content-Type: ' . ($content_type ?: 'application/json; charset=utf-8'));
     header('Cache-Control: no-store, max-age=0');
@@ -99,7 +138,10 @@ if (isset($_GET['asset'])) {
 }
 
 if (isset($_GET['api'])) {
-    if (!$logged_in) { kgeo_error(401, 'Xログインが必要です'); }
+    if (!$logged_in || $session_user === '') { kgeo_error(401, 'Xログインが必要です'); }
+    if (strlen($session_user) > 200 || preg_match('/[\x00-\x1F\x7F]/', $session_user)) {
+        kgeo_error(401, 'ログイン情報を確認できません');
+    }
     $path = rawurldecode((string)$_GET['api']);
     $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
     if (!kgeo_route_allowed($path, $method)) { kgeo_error(404, 'Unknown route'); }
@@ -107,13 +149,59 @@ if (isset($_GET['api'])) {
         $sent = (string)($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
         if (!$sent || !hash_equals($csrf, $sent)) { kgeo_error(403, 'CSRF検証に失敗しました'); }
     }
+    if ($path === '/billing/status') {
+        $audit_count = kgeo_backend_audit_count($session_user);
+        if ($audit_count === null) { kgeo_error(502, 'Kurage GEO APIへ接続できません'); }
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store, max-age=0');
+        echo json_encode(array(
+            'audits' => $audit_count,
+            'first_free' => ($audit_count === 0),
+            'credits' => kgeo_bill_credits($session_user),
+            'price_jpy' => KGEO_PRICE_JPY,
+            'price_urlai' => KGEO_PRICE_URLAI,
+            'urlai_receiver' => KGEO_URLAI_RECEIVER,
+            'paypal_client_id' => KGEO_PAYPAL_CLIENT_ID,
+        ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+    if (in_array($path, array('/billing/paypal', '/billing/urlai'), true)) {
+        $input = json_decode((string)file_get_contents('php://input'), true);
+        if (!is_array($input)) { kgeo_error(400, 'JSONを確認してください'); }
+        if ($path === '/billing/paypal') {
+            list($ok, $message) = kgeo_bill_grant_paypal(
+                $session_user,
+                isset($input['order_id']) ? $input['order_id'] : ''
+            );
+        } else {
+            list($ok, $message) = kgeo_bill_grant_urlai(
+                $session_user,
+                isset($input['wallet']) ? $input['wallet'] : ''
+            );
+        }
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store, max-age=0');
+        echo json_encode(array(
+            'ok' => $ok,
+            'message' => $message,
+            'credits' => kgeo_bill_credits($session_user),
+        ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+    if ($method === 'POST' && preg_match('#^/api/sites/[a-f0-9]{12}/audits$#', $path)) {
+        $audit_count = kgeo_backend_audit_count($session_user);
+        if ($audit_count === null) { kgeo_error(502, 'Kurage GEO APIへ接続できません'); }
+        $gate = kgeo_bill_gate($session_user, $audit_count);
+        if ($gate === 'need_payment') { kgeo_error(402, 'PAYMENT_REQUIRED'); }
+        kgeo_proxy($method, $path, $session_user, $gate);
+    }
     kgeo_proxy($method, $path, $session_user);
 }
 
 if (!$logged_in):
 ?><!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kurage GEO | GEO Optimizer・AiCMOを日本語で使えるGEO診断</title>
-<meta name="description" content="OSSのGEO Optimizerを監査中核に、AiCMOの設計を参考に日本語向けへ再構成。GEO技術監査、日本語AEO診断、根拠付きLLM回答シミュレーションを提供します。">
+<meta name="description" content="OSSのGEO Optimizerを監査中核に、AiCMOの設計を参考に日本語向けへ再構成。初回無料、2回目以降は1診断200円または20,000 URLAIで、GEO技術監査、日本語AEO診断を提供します。">
 <meta name="keywords" content="GEO Optimizer 日本語,AiCMO 日本語,GEO 日本語,AEO 日本語,回答エンジン最適化,AI検索対策,生成AI SEO,LLMO,Kurage GEO">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="author" content="Kurageプロジェクト">
@@ -147,6 +235,10 @@ if (!$logged_in):
   "operatingSystem":"Web",
   "inLanguage":"ja",
   "isAccessibleForFree":true,
+  "offers":[
+    {"@type":"Offer","name":"初回GEO診断","price":"0","priceCurrency":"JPY","description":"Xアカウントごとに最初の診断は無料"},
+    {"@type":"Offer","name":"GEO診断クレジット","price":"200","priceCurrency":"JPY","description":"2回目以降のGEO診断1回。20,000 URLAIでも購入可能"}
+  ],
   "image":"https://kurage.exbridge.jp/images/kgeo-ogp.png",
   "codeRepository":"https://github.com/katsushi2441/kgeo",
   "license":"https://opensource.org/license/mit",
@@ -166,7 +258,8 @@ if (!$logged_in):
   "mainEntity":[
     {"@type":"Question","name":"GEO Optimizerを日本語で使えますか？","acceptedAnswer":{"@type":"Answer","text":"Kurage GEOはGEO Optimizerの決定論的な監査機能を中核に使い、監査結果を日本語画面で確認できます。さらに日本語固有の回答先出し、定義、Q&A、根拠、可読性、検索意図、断定リスクを独立採点します。公式日本語版ではありません。"}},
     {"@type":"Question","name":"AiCMOとの関係は何ですか？","acceptedAnswer":{"@type":"Answer","text":"AiCMOの企業・競合・監視質問・実行履歴・AI可視性という設計を参考に、Kurage GEO独自の軽量な日本語データモデルとして実装しています。AiCMO全体を翻訳した公式版ではありません。"}},
-    {"@type":"Question","name":"SEOとGEOの違いは何ですか？","acceptedAnswer":{"@type":"Answer","text":"SEOは主に検索結果での発見性を改善し、GEOは生成AIやAI検索が内容を理解・引用しやすい技術構成と情報表現を整えます。Kurage GEOはrobots.txt、llms.txt、構造化データ、本文構造などを監査します。"}}
+    {"@type":"Question","name":"SEOとGEOの違いは何ですか？","acceptedAnswer":{"@type":"Answer","text":"SEOは主に検索結果での発見性を改善し、GEOは生成AIやAI検索が内容を理解・引用しやすい技術構成と情報表現を整えます。Kurage GEOはrobots.txt、llms.txt、構造化データ、本文構造などを監査します。"}},
+    {"@type":"Question","name":"Kurage GEOの診断料金はいくらですか？","acceptedAnswer":{"@type":"Answer","text":"Xアカウントごとに初回診断は無料です。2回目以降は1診断200円、または20,000 URLAIで購入した診断クレジットを使います。月額契約はありません。"}}
   ]
 }
 </script>

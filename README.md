@@ -13,7 +13,9 @@ Kurage GEOは、WebサイトのAI検索対応を日本語で監査し、AI回答
 - SQLiteによるユーザー別データ分離
 - 内部トークン＋信頼済みユーザーヘッダー方式のFastAPI
 - 共通X認証を前段に置くPHPゲートウェイ
-- 月ごとの設定可能な無料枠
+- Xアカウントごとに初回診断無料、2回目以降は1診断200円または20,000 URLAI
+- PayPal決済とBase上のURLAI送金をサーバ側で検証し、成功した診断だけクレジットを消費
+- AI回答シミュレーションは月ごとの設定可能な無料枠
 - Cloud Run向けDockerfile（デプロイはローカル試験完了後に実施）
 
 ## OSSの使い分け
@@ -51,6 +53,10 @@ scripts/deploy.sh
 
 公開URLは `https://kurage.exbridge.jp/kgeo.php` です。`public/kgeo_config.php` と `.env` は秘密情報を含むためGit管理外です。
 
+診断課金は公開PHPゲートウェイで処理します。1回目の成功した診断は無料で、2回目以降は
+PayPalの200円決済またはBase上の20,000 URLAI送金で追加した診断クレジットを1消費します。
+支払い済み注文・送金ログは再利用できず、監査APIが失敗した場合はクレジットを消費しません。
+
 OGP画像を再生成する場合は `.venv/bin/python scripts/build_ogp.py` を実行します。生成元は `assets/ogp/`、公開画像は `static/images/kgeo-ogp.png`（1200×630）です。
 
 ## 根拠付きLLM回答シミュレーション
@@ -79,6 +85,7 @@ KGEO_DEEPSEEK_MODEL=deepseek-v4-flash
 ```bash
 .venv/bin/pytest -q
 .venv/bin/ruff check app tests
+php tests/test_billing.php
 ```
 
 ## Cloud Run

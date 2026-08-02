@@ -63,7 +63,10 @@ def usage_status(owner: str) -> UsageStatus:
         plan="admin" if is_admin else plan,
         month=month,
         audits_used=db.monthly_usage(owner, "audit", month),
-        audits_limit=None if unlimited else config.FREE_AUDITS_PER_MONTH,
+        # Audit charging is enforced by the public X-authenticated PHP gateway.
+        # The FastAPI token is trusted internal traffic and must not apply a
+        # second monthly limit after a paid diagnosis has been authorized.
+        audits_limit=None,
         monitor_runs_used=db.monthly_usage(owner, "monitor", month),
         monitor_runs_limit=None if unlimited else config.FREE_MONITOR_RUNS_PER_MONTH,
         llm_configured=monitor_service.configured(owner),
@@ -71,6 +74,8 @@ def usage_status(owner: str) -> UsageStatus:
 
 
 def enforce_limit(owner: str, kind: str) -> None:
+    if kind == "audit":
+        return
     status = usage_status(owner)
     used = status.audits_used if kind == "audit" else status.monitor_runs_used
     limit = status.audits_limit if kind == "audit" else status.monitor_runs_limit

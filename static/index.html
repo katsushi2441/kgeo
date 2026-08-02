@@ -93,6 +93,14 @@
           <div id="usage" class="usage-chip">利用状況を取得中</div>
         </div>
 
+        <div class="pricing-strip" aria-label="診断料金">
+          <span class="pricing-badge">初回無料</span>
+          <p>
+            2回目以降は1診断 <b>200円</b> または
+            <b>20,000 URLAI</b>。月額契約はありません。
+          </p>
+        </div>
+
         <form id="siteForm" class="new-site card">
           <label
             ><span>サイト名</span
@@ -215,6 +223,47 @@
       Kurage GEO
       <span>— built on open GEO research, measured with evidence.</span>
     </footer>
+
+    <dialog id="billingDialog" class="billing-dialog">
+      <form method="dialog" onsubmit="return false">
+        <p class="eyebrow">DIAGNOSIS CREDIT</p>
+        <h2>診断クレジットを追加</h2>
+        <p>
+          初回診断は無料です。2回目以降は
+          <b>1診断 = 200円 または 20,000 URLAI</b>。現在の残りクレジット：
+          <b id="billingCredits">-</b>
+        </p>
+        <div class="bill-methods">
+          <section class="bill-method">
+            <h3>200円（PayPal）</h3>
+            <div id="kgeoPaypalButtons"></div>
+            <p class="bill-note">
+              PayPalで支払いが完了すると、診断クレジットを1追加します。
+            </p>
+          </section>
+          <section class="bill-method">
+            <h3>20,000 URLAI（Base）</h3>
+            <p class="bill-note">
+              下記アドレスへ送金後、送金元ウォレットを入力してください。まとめて送金した場合は20,000 URLAIごとに1クレジット追加します。
+            </p>
+            <p class="bill-address"><code id="billingReceiver">-</code></p>
+            <input
+              id="billingWallet"
+              placeholder="送金元ウォレット（0x…）"
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button type="button" id="billingVerifyUrlai" class="primary">
+              支払いを確認
+            </button>
+          </section>
+        </div>
+        <div id="billingMsg" class="bill-message" aria-live="polite"></div>
+        <div class="dialog-actions">
+          <button type="button" id="billingClose" class="secondary">閉じる</button>
+        </div>
+      </form>
+    </dialog>
     <script src="/static/app.js" defer></script>
   </body>
 </html>

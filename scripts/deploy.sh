@@ -15,6 +15,8 @@ upload() {
 }
 
 upload public/kgeo.php kgeo.php
+upload public/kgeo_billing.php kgeo_billing.php
+upload public/kgeo_data/.htaccess kgeo_data/.htaccess
 upload static/index.html kgeo_app.html
 upload static/styles.css assets/kgeo.css
 upload static/app.js assets/kgeo.js
