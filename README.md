@@ -49,6 +49,8 @@ scripts/deploy.sh
 
 公開URLは `https://kurage.exbridge.jp/kgeo.php` です。`public/kgeo_config.php` と `.env` は秘密情報を含むためGit管理外です。
 
+OGP画像を再生成する場合は `.venv/bin/python scripts/build_ogp.py` を実行します。生成元は `assets/ogp/`、公開画像は `static/images/kgeo-ogp.png`（1200×630）です。
+
 ## AI回答モニタリング
 
 以下を設定するとAI回答の確認が有効になります。未設定でも技術監査はすべて利用できます。

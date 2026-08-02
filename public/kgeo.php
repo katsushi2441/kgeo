@@ -112,8 +112,50 @@ if (isset($_GET['api'])) {
 
 if (!$logged_in):
 ?><!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Kurage GEO | AI検索対応を日本語で診断</title><meta name="description" content="AI検索に引用されやすいサイトへ。技術監査とブランド可視性を日本語で確認するKurage GEO。">
-<style>body{margin:0;background:#f5fcfd;color:#15334a;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}.wrap{max-width:720px;margin:12vh auto;padding:28px}.card{background:#fff;border:1px solid #dce8ee;border-radius:28px;padding:48px;box-shadow:0 18px 55px rgba(24,75,99,.1);text-align:center}.mark{width:70px;height:70px;margin:auto;display:grid;place-items:center;border-radius:22px;background:#0c9bae;color:#fff;font-size:36px;font-weight:900}h1{font-size:38px;margin:20px 0 10px}p{color:#667b8b;line-height:1.8}.button{display:inline-flex;min-height:50px;align-items:center;margin-top:18px;padding:0 28px;border-radius:14px;background:#0c9bae;color:#fff;text-decoration:none;font-weight:800}</style></head><body><main class="wrap"><section class="card"><div class="mark">G</div><h1>Kurage GEO</h1><p>サイトのAI検索対応を監査し、ブランド言及とURL引用を継続観測します。<br>利用には共通Xアカウントでのログインが必要です。</p><a class="button" href="?login=1">Xでログイン</a></section></main></body></html><?php
+<title>Kurage GEO | AI検索・GEO対応を日本語で診断</title>
+<meta name="description" content="WebサイトのAI検索・GEO対応を日本語で監査。robots.txt、llms.txt、構造化データ、引用されやすさを診断し、ブランド言及とURL引用を継続観測します。">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="author" content="Kurageプロジェクト">
+<meta name="theme-color" content="#0c9bae">
+<link rel="canonical" href="https://kurage.exbridge.jp/kgeo.php">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Kurageプロジェクト">
+<meta property="og:title" content="Kurage GEO — AI検索に、見つけてもらえるサイトへ。">
+<meta property="og:description" content="AI検索・GEO対応を日本語で技術監査。ブランド言及とURL引用の変化も継続観測できます。">
+<meta property="og:url" content="https://kurage.exbridge.jp/kgeo.php">
+<meta property="og:image" content="https://kurage.exbridge.jp/images/kgeo-ogp.png">
+<meta property="og:image:secure_url" content="https://kurage.exbridge.jp/images/kgeo-ogp.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Kurage GEO — AI検索に、見つけてもらえるサイトへ。">
+<meta property="og:locale" content="ja_JP">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Kurage GEO — AI検索に、見つけてもらえるサイトへ。">
+<meta name="twitter:description" content="AI検索・GEO対応を日本語で技術監査。ブランド言及とURL引用を継続観測。">
+<meta name="twitter:image" content="https://kurage.exbridge.jp/images/kgeo-ogp.png">
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"Kurage GEO",
+  "alternateName":"日本語GEO・AI検索可視性ワークスペース",
+  "url":"https://kurage.exbridge.jp/kgeo.php",
+  "description":"WebサイトのAI検索対応を日本語で監査し、AI回答におけるブランド言及とURL引用を記録するGEOワークスペース。",
+  "applicationCategory":"BusinessApplication",
+  "operatingSystem":"Web",
+  "inLanguage":"ja",
+  "isAccessibleForFree":true,
+  "image":"https://kurage.exbridge.jp/images/kgeo-ogp.png",
+  "codeRepository":"https://github.com/katsushi2441/kgeo",
+  "license":"https://opensource.org/license/mit",
+  "featureList":["GEO技術監査","AIクローラー許可診断","llms.txt診断","構造化データ診断","日本語改善提案","ブランド言及・URL引用の記録"],
+  "publisher":{"@type":"Organization","name":"Kurageプロジェクト","url":"https://kurage.exbridge.jp/"}
+}
+</script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BP0650KDFR"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-BP0650KDFR');</script>
+<script>(function(){var s=document.createElement('script');s.src='https://aiknowledgecms.exbridge.jp/simpletrack.php?url='+encodeURIComponent(location.href)+'&ref='+encodeURIComponent(document.referrer);document.head.appendChild(s)})();</script>
+<style>body{margin:0;background:#f5fcfd;color:#15334a;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif}.wrap{max-width:900px;margin:7vh auto;padding:28px}.card,.feature{background:#fff;border:1px solid #dce8ee;border-radius:28px;box-shadow:0 18px 55px rgba(24,75,99,.1)}.card{padding:48px;text-align:center}.mark{width:70px;height:70px;margin:auto;display:grid;place-items:center;border-radius:22px;background:#0c9bae;color:#fff;font-size:36px;font-weight:900}h1{font-size:38px;margin:20px 0 10px}p{color:#667b8b;line-height:1.8}.button{display:inline-flex;min-height:50px;align-items:center;margin-top:18px;padding:0 28px;border-radius:14px;background:#0c9bae;color:#fff;text-decoration:none;font-weight:800}.about{text-align:center;margin:48px auto 22px;max-width:720px}.about h2{font-size:26px;margin:0 0 8px}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.feature{padding:22px;border-radius:18px;box-shadow:0 10px 28px rgba(24,75,99,.06)}.feature h3{font-size:16px;margin:0 0 7px;color:#087988}.feature p{font-size:13px;margin:0}.foot{text-align:center;font-size:12px;margin:26px 0 0}@media(max-width:700px){.wrap{margin:3vh auto;padding:18px}.card{padding:36px 22px}.features{grid-template-columns:1fr}}</style></head><body><main class="wrap"><section class="card"><div class="mark">G</div><h1>Kurage GEO</h1><p>サイトのAI検索対応を監査し、ブランド言及とURL引用を継続観測します。<br>利用には共通Xアカウントでのログインが必要です。</p><a class="button" href="?login=1">Xでログイン</a></section><section class="about"><h2>日本語でわかるGEO技術監査</h2><p>AI検索に読み取られやすい技術構成かを確認し、点数だけでなく、次に直す項目を具体的な日本語で示します。</p></section><section class="features" aria-label="Kurage GEOの機能"><article class="feature"><h3>AIクローラーとllms.txt</h3><p>robots.txtの許可状況、llms.txt、AI向け発見エンドポイントを確認します。</p></article><article class="feature"><h3>構造化データと引用適性</h3><p>JSON-LD、メタ情報、本文構造、更新シグナル、ブランド表記の整合性を監査します。</p></article><article class="feature"><h3>履歴とAI検索可視性</h3><p>監査結果を保存し、対応前後の変化やAI回答でのブランド言及・URL引用を記録します。</p></article></section><p class="foot">Kurage GEOは順位やAI回答への掲載を保証するものではありません。観測事実と改善判断を支援するツールです。</p></main></body></html><?php
 exit;
 endif;
 
@@ -123,6 +165,9 @@ $html_path = file_exists(__DIR__ . '/kgeo_app.html')
 $html = file_get_contents($html_path);
 $html = str_replace('href="/static/styles.css"', 'href="?asset=styles.css"', $html);
 $html = str_replace('src="/static/app.js" defer', 'src="?asset=app.js" defer', $html);
-$bootstrap = '<script>window.KGEO_API_PREFIX="?api=";window.KGEO_CSRF=' . json_encode($csrf) . ';</script>';
+$bootstrap = '<script>window.KGEO_API_PREFIX="?api=";window.KGEO_CSRF=' . json_encode($csrf) . ';</script>'
+    . '<script async src="https://www.googletagmanager.com/gtag/js?id=G-BP0650KDFR"></script>'
+    . '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-BP0650KDFR");</script>'
+    . '<script>(function(){var s=document.createElement("script");s.src="https://aiknowledgecms.exbridge.jp/simpletrack.php?url="+encodeURIComponent(location.href)+"&ref="+encodeURIComponent(document.referrer);document.head.appendChild(s)})();</script>';
 $html = str_replace('</head>', $bootstrap . '</head>', $html);
 echo $html;

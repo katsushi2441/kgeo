@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700;900&family=Noto+Sans+JP:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:1200px;height:630px;overflow:hidden}
+body{font-family:"Noto Sans JP",sans-serif;color:#15334a;background:#f7fdff}
+.canvas{position:relative;width:1200px;height:630px;overflow:hidden;background:#fff}
+.background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.94) 44%,rgba(247,253,255,.45) 67%,rgba(247,253,255,.18) 100%)}
+.topline{position:absolute;left:62px;top:48px;display:flex;align-items:center;gap:12px;color:#087988;font-size:16px;font-weight:800;letter-spacing:.14em}
+.mark{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#0c9bae,#63d6dc);color:#fff;font:900 24px "Zen Maru Gothic";box-shadow:0 9px 22px rgba(12,155,174,.22)}
+.copy{position:absolute;left:62px;top:135px;width:730px}
+h1{margin:0;font:900 76px/1 "Zen Maru Gothic",sans-serif;letter-spacing:-.04em;color:#15334a}
+h1 span{color:#0c9bae}
+.tagline{margin:25px 0 0;font:900 31px/1.45 "Zen Maru Gothic",sans-serif;letter-spacing:-.02em}
+.tagline strong{color:#0c9bae}
+.summary{display:inline-flex;margin-top:26px;padding:13px 19px;border-radius:14px;border:1px solid #bfe7eb;background:rgba(234,250,253,.88);font-size:16px;font-weight:700;color:#31596d;box-shadow:0 10px 25px rgba(24,75,99,.07)}
+.url{position:absolute;left:64px;bottom:49px;font-size:15px;font-weight:700;color:#587486;letter-spacing:.04em}
+.avatar{position:absolute;right:10px;bottom:-210px;width:445px;height:auto;filter:drop-shadow(0 20px 32px rgba(37,101,130,.16))}
+.badge{position:absolute;right:66px;top:52px;padding:9px 15px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid #cbeaf0;color:#087988;font-size:13px;font-weight:800;box-shadow:0 8px 24px rgba(24,75,99,.08)}
+.corner{position:absolute;left:0;top:0;width:9px;height:100%;background:linear-gradient(#0c9bae,#76dce2,#446bd1)}
+</style>
+</head>
+<body>
+<div class="canvas">
+  <img class="background" src="kgeo-ogp-background.png" alt="">
+  <div class="veil"></div><div class="corner"></div>
+  <div class="topline"><span class="mark">G</span><span>KURAGE PROJECT / AI SEARCH VISIBILITY</span></div>
+  <div class="copy">
+    <h1>Kurage <span>GEO</span></h1>
+    <p class="tagline">AI検索に、<strong>見つけてもらえる</strong><br>サイトへ。</p>
+    <div class="summary">GEO技術監査 ｜ ブランド言及・URL引用を継続観測</div>
+  </div>
+  <div class="url">kurage.exbridge.jp/kgeo.php</div>
+  <div class="badge">日本語GEOワークスペース</div>
+  <img class="avatar" src="kurage-avatar-smile.png" alt="Kurage">
+</div>
+</body>
+</html>

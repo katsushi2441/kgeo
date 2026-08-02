@@ -18,6 +18,7 @@ upload public/kgeo.php kgeo.php
 upload static/index.html kgeo_app.html
 upload static/styles.css assets/kgeo.css
 upload static/app.js assets/kgeo.js
+upload static/images/kgeo-ogp.png images/kgeo-ogp.png
 if [[ -f public/kgeo_config.php ]]; then
   upload public/kgeo_config.php kgeo_config.php
 else
