@@ -527,7 +527,7 @@ $html = file_get_contents($html_path);
 $html = str_replace('href="/static/styles.css"', 'href="?asset=styles.css"', $html);
 $html = str_replace('src="/static/app.js" defer', 'src="?asset=app.js" defer', $html);
 if ($lang === 'en') { $html = preg_replace('/<html lang="ja">/', '<html lang="en">', $html, 1); }
-$bootstrap = '<script>window.KGEO_API_PREFIX="?api=";window.KGEO_CSRF=' . json_encode($csrf) . ';window.KGEO_LANG=' . json_encode($lang) . ';</script>'
+$bootstrap = '<script>window.KGEO_API_PREFIX="?api=";window.KGEO_CSRF=' . json_encode($csrf) . ';window.KGEO_LANG=' . json_encode($lang) . ';window.KGEO_USER=' . json_encode($session_user) . ';</script>'
     . '<script async src="https://www.googletagmanager.com/gtag/js?id=G-BP0650KDFR"></script>'
     . '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-BP0650KDFR");</script>'
     . '<script>(function(){var s=document.createElement("script");s.src="https://aiknowledgecms.exbridge.jp/simpletrack.php?url="+encodeURIComponent(location.href)+"&ref="+encodeURIComponent(document.referrer);document.head.appendChild(s)})();</script>';

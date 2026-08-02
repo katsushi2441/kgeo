@@ -256,6 +256,7 @@ const I18N_EN = {
   ph_wallet: "Sender wallet (0x…)",
   btn_verify: "Verify payment",
   btn_close: "Close",
+  btn_logout: "Logout",
 };
 if (LANG === "en") {
   document.documentElement.lang = "en";
@@ -275,6 +276,17 @@ if (LANG === "en") {
 document.querySelectorAll(".langswitch a").forEach((a) => {
   if (a.dataset.lang === LANG) a.classList.add("on");
 });
+
+// ログインユーザー表示とログアウト（kgeo.phpがwindow.KGEO_USERを注入する）
+if (window.KGEO_USER) {
+  const chip = $("#userChip");
+  const logout = $("#logoutLink");
+  if (chip) {
+    chip.textContent = `@${window.KGEO_USER}`;
+    chip.hidden = false;
+  }
+  if (logout) logout.hidden = false;
+}
 
 async function api(path, options = {}) {
   const target = window.KGEO_API_PREFIX
