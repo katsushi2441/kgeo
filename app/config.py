@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = Path(os.environ.get("KGEO_DATA_DIR", ROOT / "data"))
 DB_PATH = Path(os.environ.get("KGEO_DB", DATA_DIR / "kgeo.db"))
+DATABASE_URL = os.environ.get("KGEO_DATABASE_URL", "").strip()
 STATIC_DIR = ROOT / "static"
 
 HOST = os.environ.get("KGEO_HOST", "127.0.0.1")
@@ -17,10 +18,17 @@ ADMIN_USERS = {
     value.strip().lstrip("@").lower() for value in _admin_users.split(",") if value.strip()
 }
 
-# The operator account uses the local Ollama host. Other users use DeepSeek so
-# public traffic cannot occupy the operator's GPU indefinitely.
+# The operator account uses Gemma 4 through RQDB4AI's host-specific queue.
+# The worker, not the Cloud Run container, is allowed to reach 192.168.0.14.
+RQDB4AI_URL = os.environ.get("KGEO_RQDB4AI_URL", "").strip().rstrip("/")
+RQDB4AI_TOKEN = os.environ.get("KGEO_RQDB4AI_TOKEN", "").strip()
+RQDB4AI_FUNCTION = (
+    os.environ.get("KGEO_RQDB4AI_FUNCTION", "").strip() or "kgeo.jobs.ollama_chat_job"
+)
+RQDB4AI_POLL_INTERVAL = max(0.5, float(os.environ.get("KGEO_RQDB4AI_POLL_INTERVAL", "2")))
+RQDB4AI_WAIT_TIMEOUT = max(30.0, float(os.environ.get("KGEO_RQDB4AI_WAIT_TIMEOUT", "300")))
 OLLAMA_BASE_URL = (
-    os.environ.get("KGEO_OLLAMA_BASE_URL", "").strip() or "http://127.0.0.1:11434"
+    os.environ.get("KGEO_OLLAMA_BASE_URL", "").strip() or "http://192.168.0.14:11434"
 ).rstrip("/")
 OLLAMA_MODEL = os.environ.get("KGEO_OLLAMA_MODEL", "").strip() or "gemma4:12b-it-qat"
 OLLAMA_TIMEOUT = float(os.environ.get("KGEO_OLLAMA_TIMEOUT", "180"))

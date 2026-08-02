@@ -78,6 +78,7 @@ function kgeo_backend_audit_count($user) {
 }
 
 function kgeo_proxy($method, $path, $user, $billing_mode = null) {
+    @set_time_limit(650);
     $headers = array(
         'Accept: application/json',
         'Content-Type: application/json',
@@ -88,7 +89,7 @@ function kgeo_proxy($method, $path, $user, $billing_mode = null) {
     curl_setopt_array($ch, array(
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CONNECTTIMEOUT => 8,
-        CURLOPT_TIMEOUT => 180,
+        CURLOPT_TIMEOUT => 620,
         CURLOPT_CUSTOMREQUEST => $method,
         CURLOPT_HTTPHEADER => $headers,
     ));

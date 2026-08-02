@@ -9,8 +9,9 @@ Kurage GEOは、WebサイトのAI検索対応を日本語で監査し、AI回答
 - GEO Optimizerが生成する47項目の引用適性、RAG、文脈効率、検索意図、信頼性、プラットフォーム別準備度の可視化
 - 100点スコア、カテゴリ別内訳、根拠付き改善案、履歴保存
 - 対象ページ本文を根拠としてGemma 4／DeepSeekが回答可能性・不足情報・改善案を評価
+- 管理者のGemma 4はRQDB4AIの`ollama-192-168-0-14-web`キュー経由で直列実行
 - LLM回答本文、使用モデル、回答可能性、根拠、不足情報、改善案の履歴表示
-- SQLiteによるユーザー別データ分離
+- ローカルSQLite／Cloud Run本番Cloud SQL PostgreSQLによるユーザー別データ分離
 - 内部トークン＋信頼済みユーザーヘッダー方式のFastAPI
 - 共通X認証を前段に置くPHPゲートウェイ
 - Xアカウントごとに初回診断無料、2回目以降は1診断200円または20,000 URLAI
@@ -62,12 +63,17 @@ OGP画像を再生成する場合は `.venv/bin/python scripts/build_ogp.py` を
 ## 根拠付きLLM回答シミュレーション
 
 AI回答の確認はXユーザー名で自動振り分けします。管理者 `xb_bittensor` は
-`192.168.0.3` のローカルOllama、それ以外の一般ユーザーはDeepSeekを利用します。
-Gemma 4はOllamaネイティブAPIへ `think: false` を明示して呼び出します。
+RQDB4AI経由で`192.168.0.14`のOllama、それ以外の一般ユーザーはDeepSeekを利用します。
+Cloud Runは0.14へ直接接続しません。`queue=auto`と`ollama_host=192.168.0.14`を指定して
+`ollama-192-168-0-14-web`へ振り分け、ジョブの最終結果まで待ちます。Gemma 4のジョブは
+OllamaネイティブAPIへ`think: false`を明示します。
 
 ```dotenv
 KGEO_ADMIN_USERS=xb_bittensor
-KGEO_OLLAMA_BASE_URL=http://127.0.0.1:11434
+KGEO_RQDB4AI_URL=http://127.0.0.1:18300
+KGEO_RQDB4AI_TOKEN=secret
+KGEO_RQDB4AI_FUNCTION=kgeo.jobs.ollama_chat_job
+KGEO_OLLAMA_BASE_URL=http://192.168.0.14:11434
 KGEO_OLLAMA_MODEL=gemma4:12b-it-qat
 KGEO_DEEPSEEK_BASE_URL=https://api.deepseek.com
 KGEO_DEEPSEEK_API_KEY=secret
@@ -90,4 +96,20 @@ php tests/test_billing.php
 
 ## Cloud Run
 
-Dockerfileは用意済みですが、現段階ではデプロイしません。SQLiteはCloud Runの一時ファイルシステムに永続化できないため、本番移行時はCloud SQL/PostgreSQLへ差し替えます。詳細は `OPERATIONS.md` を参照してください。
+Cloud RunではCloud SQL PostgreSQLを使用し、SQLiteをコンテナへ持ち込みません。構築・移行は
+次の順で実行します。現在のローカルAPIはCloud Runのヘルス確認とデータ件数検証が終わるまで
+停止せず、最後にPHPゲートウェイの接続先だけを切り替えます。
+
+```bash
+scripts/configure_rqdb4ai_access.py
+sudo tailscale set --operator="$USER"
+tailscale funnel --bg --yes 18300
+export KGEO_RQDB4AI_PUBLIC_URL=https://<このホストのMagicDNS名>
+scripts/bootstrap_cloud_run.sh
+scripts/deploy_cloud_run.sh
+```
+
+`bootstrap_cloud_run.sh`は課金が無効なら、リソースを作らず終了します。緊急時は
+`scripts/rollback_to_local.sh`でPHPゲートウェイをローカルAPIへ戻せます。詳細は
+`OPERATIONS.md`を参照してください。Cloud RunからHTTPのRQDB4AI公開ポートへBearerトークンを
+送る構成は禁止し、Tailscale FunnelなどのHTTPS入口だけを指定します。

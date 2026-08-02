@@ -280,6 +280,7 @@ function renderRun(run) {
 
 function providerName(value) {
   if (value === "ollama-local") return "ローカルGemma 4";
+  if (value === "ollama-rqdb4ai") return "RQDB4AI Gemma 4（0.14）";
   if (value === "deepseek") return "DeepSeek";
   return value || "LLM";
 }

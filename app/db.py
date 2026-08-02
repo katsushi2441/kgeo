@@ -4,12 +4,12 @@ import json
 import sqlite3
 import uuid
 from contextlib import contextmanager
-from typing import Iterator
+from typing import Any, Iterator, Mapping
 
-from .config import DB_PATH
+from .config import DATABASE_URL, DB_PATH
 from .models import SiteCreate, now_iso
 
-SCHEMA = """
+SCHEMA_TEMPLATE = """
 CREATE TABLE IF NOT EXISTS users (
     owner TEXT PRIMARY KEY,
     plan TEXT NOT NULL DEFAULT 'free',
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS audits (
     band TEXT NOT NULL,
     http_status INTEGER NOT NULL DEFAULT 0,
     error TEXT,
-    score_breakdown_json TEXT NOT NULL DEFAULT '{}',
+    score_breakdown_json TEXT NOT NULL DEFAULT '{{}}',
     recommendations_ja_json TEXT NOT NULL DEFAULT '[]',
     result_json TEXT NOT NULL,
     created_at TEXT NOT NULL
@@ -61,13 +61,13 @@ CREATE TABLE IF NOT EXISTS prompt_runs (
     cited_urls_json TEXT NOT NULL DEFAULT '[]',
     response_text TEXT NOT NULL DEFAULT '',
     evaluation_mode TEXT NOT NULL DEFAULT 'legacy-unverified',
-    analysis_json TEXT NOT NULL DEFAULT '{}',
+    analysis_json TEXT NOT NULL DEFAULT '{{}}',
     error TEXT,
     created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_runs_prompt_created ON prompt_runs(prompt_id, created_at DESC);
 CREATE TABLE IF NOT EXISTS usage_events (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id {usage_id_type},
     owner TEXT NOT NULL,
     kind TEXT NOT NULL,
     ref_id TEXT NOT NULL,
@@ -77,23 +77,73 @@ CREATE INDEX IF NOT EXISTS idx_usage_owner_kind_created ON usage_events(owner, k
 """
 
 
+class DatabaseConnection:
+    """Small SQL adapter that keeps the existing queries portable."""
+
+    def __init__(self, raw: Any, postgres: bool) -> None:
+        self.raw = raw
+        self.postgres = postgres
+
+    def execute(self, query: str, params: tuple | list = ()) -> Any:
+        if self.postgres:
+            query = query.replace("?", "%s")
+        return self.raw.execute(query, params)
+
+    def executescript(self, script: str) -> None:
+        if not self.postgres:
+            self.raw.executescript(script)
+            return
+        for statement in script.split(";"):
+            if statement.strip():
+                self.raw.execute(statement)
+
+
+def using_postgres() -> bool:
+    return DATABASE_URL.startswith(("postgres://", "postgresql://"))
+
+
 @contextmanager
-def connect() -> Iterator[sqlite3.Connection]:
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH, timeout=30)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
+def connect() -> Iterator[DatabaseConnection]:
+    postgres = using_postgres()
+    if postgres:
+        from psycopg import connect as pg_connect
+        from psycopg.rows import dict_row
+
+        raw = pg_connect(DATABASE_URL, row_factory=dict_row, connect_timeout=15)
+    else:
+        DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+        raw = sqlite3.connect(DB_PATH, timeout=30)
+        raw.row_factory = sqlite3.Row
+        raw.execute("PRAGMA foreign_keys = ON")
+    conn = DatabaseConnection(raw, postgres)
     try:
         yield conn
-        conn.commit()
+        raw.commit()
+    except Exception:
+        raw.rollback()
+        raise
     finally:
-        conn.close()
+        raw.close()
 
 
 def init_db() -> None:
     with connect() as conn:
-        conn.executescript(SCHEMA)
-        columns = {row["name"] for row in conn.execute("PRAGMA table_info(prompt_runs)")}
+        schema = SCHEMA_TEMPLATE.format(
+            usage_id_type="BIGSERIAL PRIMARY KEY"
+            if conn.postgres
+            else "INTEGER PRIMARY KEY AUTOINCREMENT"
+        )
+        conn.executescript(schema)
+        if conn.postgres:
+            columns = {
+                row["column_name"]
+                for row in conn.execute(
+                    """SELECT column_name FROM information_schema.columns
+                       WHERE table_schema='public' AND table_name='prompt_runs'"""
+                )
+            }
+        else:
+            columns = {row["name"] for row in conn.execute("PRAGMA table_info(prompt_runs)")}
         if "evaluation_mode" not in columns:
             conn.execute(
                 "ALTER TABLE prompt_runs ADD COLUMN evaluation_mode TEXT NOT NULL DEFAULT 'legacy-unverified'"
@@ -104,10 +154,17 @@ def init_db() -> None:
 
 def ensure_user(owner: str) -> None:
     with connect() as conn:
-        conn.execute(
-            "INSERT OR IGNORE INTO users(owner, plan, created_at) VALUES (?, 'free', ?)",
-            (owner, now_iso()),
-        )
+        if conn.postgres:
+            conn.execute(
+                """INSERT INTO users(owner, plan, created_at) VALUES (?, 'free', ?)
+                   ON CONFLICT (owner) DO NOTHING""",
+                (owner, now_iso()),
+            )
+        else:
+            conn.execute(
+                "INSERT OR IGNORE INTO users(owner, plan, created_at) VALUES (?, 'free', ?)",
+                (owner, now_iso()),
+            )
 
 
 def get_plan(owner: str) -> str:
@@ -132,7 +189,7 @@ def create_site(owner: str, payload: SiteCreate) -> dict:
     return get_site(owner, site_id)
 
 
-def _site_dict(row: sqlite3.Row) -> dict:
+def _site_dict(row: Mapping[str, Any]) -> dict:
     item = dict(row)
     item["competitors"] = json.loads(item.pop("competitors_json"))
     return item
@@ -183,7 +240,7 @@ def save_audit(owner: str, site_id: str, result: dict, recommendations_ja: list[
     return get_audit(owner, audit_id)
 
 
-def _audit_dict(row: sqlite3.Row, detail: bool = True) -> dict:
+def _audit_dict(row: Mapping[str, Any], detail: bool = True) -> dict:
     item = dict(row)
     item["score_breakdown"] = json.loads(item.pop("score_breakdown_json"))
     item["recommendations_ja"] = json.loads(item.pop("recommendations_ja_json"))

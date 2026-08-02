@@ -4,6 +4,7 @@ from app import config
 from app.audit_service import japanese_recommendations, validate_target
 from app.japanese_aeo import analyze_japanese_aeo
 from app.monitor_service import _parse_evaluation, analyze_response, configured, provider_for
+from app.rqdb4ai_client import enqueue_payload
 
 
 @pytest.mark.parametrize(
@@ -36,10 +37,22 @@ def test_monitor_response_analysis() -> None:
 def test_llm_provider_is_selected_by_owner(monkeypatch) -> None:
     monkeypatch.setattr(config, "ADMIN_USERS", {"xb_bittensor"})
     monkeypatch.setattr(config, "DEEPSEEK_API_KEY", "test-key")
+    monkeypatch.setattr(config, "RQDB4AI_URL", "https://queue.example")
+    monkeypatch.setattr(config, "RQDB4AI_TOKEN", "test-rq-token")
     assert provider_for("@XB_BITTENSOR") == "ollama"
     assert provider_for("alice") == "deepseek"
     assert configured("xb_bittensor") is True
     assert configured("alice") is True
+
+
+def test_rqdb4ai_payload_routes_admin_to_014_web_queue(monkeypatch) -> None:
+    monkeypatch.setattr(config, "OLLAMA_MODEL", "gemma4:12b-it-qat")
+    payload = enqueue_payload([{"role": "user", "content": "対象本文"}])
+    assert payload["queue"] == "auto"
+    assert payload["function"] == "kgeo.jobs.ollama_chat_job"
+    assert payload["meta"]["ollama_host"] == "192.168.0.14"
+    assert payload["meta"]["source"] == "web_online"
+    assert payload["kwargs"]["model"] == "gemma4:12b-it-qat"
 
 
 def test_japanese_actions_are_based_on_missing_facts() -> None:

@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 import httpx
 
-from . import audit_service, config
+from . import audit_service, config, rqdb4ai_client
 
 URL_RE = re.compile(r"https?://[^\s\]\[()<>{}\"']+")
 
@@ -46,7 +46,7 @@ def deepseek_api_key() -> str:
 
 def configured(owner: str) -> bool:
     if provider_for(owner) == "ollama":
-        return bool(config.OLLAMA_BASE_URL and config.OLLAMA_MODEL)
+        return rqdb4ai_client.configured()
     return bool(config.DEEPSEEK_BASE_URL and config.DEEPSEEK_MODEL and deepseek_api_key())
 
 
@@ -100,21 +100,8 @@ def _messages(prompt: str, brand_name: str, site_url: str, site_context: str) ->
 
 
 async def _run_ollama(messages: list[dict[str, str]]) -> tuple[str, str, str]:
-    payload = {
-        "model": config.OLLAMA_MODEL,
-        "messages": messages,
-        "stream": False,
-        "think": False,
-        "options": {"temperature": 0.2, "num_predict": 1600},
-    }
-    async with httpx.AsyncClient(timeout=config.OLLAMA_TIMEOUT) as client:
-        response = await client.post(f"{config.OLLAMA_BASE_URL}/api/chat", json=payload)
-        response.raise_for_status()
-        body = response.json()
-    text = str((body.get("message") or {}).get("content") or "").strip()
-    if not text:
-        raise RuntimeError(f"Ollama returned an empty response ({body.get('done_reason', 'unknown')})")
-    return text, "ollama-local", config.OLLAMA_MODEL
+    text, _job_id = await rqdb4ai_client.run_ollama_chat(messages)
+    return text, "ollama-rqdb4ai", config.OLLAMA_MODEL
 
 
 async def _run_deepseek(messages: list[dict[str, str]]) -> tuple[str, str, str]:
