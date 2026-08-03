@@ -462,6 +462,108 @@ async function loadAudits() {
   setReportDownloads(a.id);
   const detail = await api(`/api/audits/${a.id}`);
   renderAdvancedReport(detail.result || {});
+  await renderArtifactCard(a.id);
+}
+
+// --- llms.txt / JSON-LD の生成 -------------------------------------------
+// 課金する前に「何が手に入るか」を必ず見せる。押してから中身を知る形にしない。
+const ARTIFACT_LABEL = {
+  llms_txt: {
+    name: "llms.txt",
+    what: "<b>llms.txt</b> — サイトの要点と主要ページをまとめたファイル。ルートに置くとAIがサイトを理解しやすくなります。",
+  },
+  json_ld: {
+    name: "JSON-LD",
+    what: "<b>JSON-LD</b> — 組織名・URL・サイト名を機械可読で示す構造化データ。ページの &lt;head&gt; に貼ります。",
+  },
+};
+
+async function renderArtifactCard(auditId) {
+  const card = document.getElementById("artifactCard");
+  if (!card) return;
+  card.hidden = true;
+  document.getElementById("artifactResult").hidden = true;
+  let missing = [];
+  try {
+    missing = (await api(`/api/audits/${auditId}/artifacts`)).missing || [];
+  } catch (error) {
+    return;                       // 下見に失敗しても診断結果の表示は妨げない
+  }
+  // 既に両方そろっているサイトに「生成しますか」と出しても売れない
+  if (!missing.length) return;
+  const names = missing.map((k) => ARTIFACT_LABEL[k]?.name).filter(Boolean);
+  document.getElementById("artifactLead").innerHTML =
+    `この診断で不足していた <b>${names.join(" と ")}</b> を、そのまま設置できる形で作ります。`;
+  document.getElementById("artifactWhat").innerHTML = missing
+    .map((k) => `<li>${ARTIFACT_LABEL[k]?.what || k}</li>`)
+    .join("") +
+    "<li>📥 <b>コピー</b>と<b>ファイルのダウンロード</b>、<b>設置手順</b>が付きます。</li>" +
+    "<li>✅ 設置してもう一度診断すると、点数が上がったことを確認できます。</li>";
+  const button = document.getElementById("artifactGenerate");
+  button.disabled = false;
+  button.onclick = () => generateArtifacts(auditId, button);
+  card.hidden = false;
+}
+
+async function generateArtifacts(auditId, button) {
+  button.disabled = true;
+  const original = button.textContent;
+  button.textContent = "生成しています…";
+  try {
+    const data = await api(`/api/audits/${auditId}/artifacts`, { method: "POST" });
+    renderArtifactResult(data.artifacts || {});
+    button.hidden = true;
+  } catch (error) {
+    const message = String(error.message || "");
+    if (message.includes("PAYMENT_REQUIRED")) {
+      $("#billingDialog").showModal();
+    } else {
+      alert(`生成できませんでした: ${message}`);
+    }
+    button.disabled = false;
+    button.textContent = original;
+  }
+}
+
+function renderArtifactResult(artifacts) {
+  const box = document.getElementById("artifactResult");
+  box.innerHTML = Object.entries(artifacts)
+    .map(([kind, item]) => {
+      const label = ARTIFACT_LABEL[kind]?.name || kind;
+      const warn = item.valid === false
+        ? `<p class="artifact-warn">⚠ ${escapeHtml(item.invalid_reason || "内容を確認してください")}</p>`
+        : "";
+      return `<div class="artifact-out">
+        <h4>${escapeHtml(label)}</h4>
+        <p class="artifact-place">${escapeHtml(item.placement || "")}</p>
+        <pre id="art-${kind}">${escapeHtml(item.content || "")}</pre>${warn}
+        <div class="artifact-actions">
+          <button class="btn" type="button" data-copy="${kind}">コピー</button>
+          <button class="btn" type="button" data-dl="${kind}" data-name="${escapeHtml(item.filename || label)}">ファイルで保存</button>
+        </div>
+      </div>`;
+    })
+    .join("");
+  box.hidden = false;
+  box.querySelectorAll("[data-copy]").forEach((b) => {
+    b.onclick = async () => {
+      await navigator.clipboard.writeText(
+        document.getElementById(`art-${b.dataset.copy}`).textContent);
+      b.textContent = "コピーしました";
+      setTimeout(() => { b.textContent = "コピー"; }, 1800);
+    };
+  });
+  box.querySelectorAll("[data-dl]").forEach((b) => {
+    b.onclick = () => {
+      const text = document.getElementById(`art-${b.dataset.dl}`).textContent;
+      const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = b.dataset.name;
+      link.click();
+      URL.revokeObjectURL(url);
+    };
+  });
 }
 
 // 監査レポート(PDF / Markdown)のダウンロードリンクを最新監査に向ける。

@@ -64,6 +64,10 @@ function kgeo_route_allowed($path, $method) {
     if (preg_match('#^/api/sites/[a-f0-9]{12}/audits$#', $path)) { return in_array($method, array('GET', 'POST'), true); }
     if (preg_match('#^/api/sites/[a-f0-9]{12}/prompts$#', $path)) { return in_array($method, array('GET', 'POST'), true); }
     if (preg_match('#^/api/audits/[a-f0-9]{12}$#', $path)) { return $method === 'GET'; }
+    // llms.txt / JSON-LD の生成。GETは下見(無料)、POSTは生成(課金)。
+    if (preg_match('#^/api/audits/[a-f0-9]{12}/artifacts$#', $path)) {
+        return in_array($method, array('GET', 'POST'), true);
+    }
     // 監査レポートのダウンロード。lang だけはクエリを許す(値も ja|en に限定する)。
     if (preg_match('#^/api/audits/[a-f0-9]{12}/report\.(md|pdf)(\?lang=(ja|en))?$#', $path)) {
         return $method === 'GET';
@@ -240,6 +244,12 @@ if (isset($_GET['api'])) {
             'credits' => kgeo_bill_credits($session_user),
         ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;
+    }
+    if ($method === 'POST' && preg_match('#^/api/audits/[a-f0-9]{12}/artifacts$#', $path)) {
+        // 成果物の生成は初回無料の対象外。診断とは別に1回ぶん消費する。
+        if ($is_admin) { kgeo_proxy($method, $path, $session_user); }
+        if (kgeo_bill_credits($session_user) < 1) { kgeo_error(402, 'PAYMENT_REQUIRED'); }
+        kgeo_proxy($method, $path, $session_user, 'credit');
     }
     if ($method === 'POST' && preg_match('#^/api/sites/[a-f0-9]{12}/audits$#', $path)) {
         // 管理者(xb_bittensor)は課金ゲートを通さず無料で実行する。

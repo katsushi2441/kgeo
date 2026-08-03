@@ -85,6 +85,19 @@ def analyze_response(
     }
 
 
+async def run_messages(
+    messages: list[dict[str, str]], owner: str, *, paid: bool
+) -> tuple[str, str, str]:
+    """任意のメッセージ列を、無料枠/課金に応じたLLMで実行する。
+
+    monitorの回答シミュレーション以外(llms.txt・JSON-LDの生成など)からも
+    同じ出し分けを使うために切り出した。
+    """
+    if provider_for(owner, paid=paid) == "ollama":
+        return await _run_ollama(messages)
+    return await _run_deepseek(messages)
+
+
 def _messages(prompt: str, brand_name: str, site_url: str, site_context: str) -> list[dict[str, str]]:
     return [
         {

@@ -11,7 +11,8 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from . import __version__, audit_service, config, db, monitor_service, report
+from . import (__version__, artifact_service, audit_service, config, db,
+               monitor_service, report)
 from .models import (
     AuditDetail,
     AuditSummary,
@@ -212,6 +213,39 @@ def audit(audit_id: str, owner: str = Depends(authenticated_owner)) -> AuditDeta
     if not row:
         raise HTTPException(status_code=404, detail="Audit not found")
     return AuditDetail.model_validate(row)
+
+
+@app.get("/api/audits/{audit_id}/artifacts")
+def artifact_plan(audit_id: str, owner: str = Depends(authenticated_owner)) -> dict:
+    """生成できる成果物の下見。課金前に「何が手に入るか」を画面に出すため。"""
+    row = db.get_audit(owner, audit_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Audit not found")
+    return {"missing": artifact_service.missing_artifacts(row)}
+
+
+@app.post("/api/audits/{audit_id}/artifacts")
+async def build_artifacts(audit_id: str, owner: str = Depends(authenticated_owner)) -> dict:
+    """不足していた llms.txt / JSON-LD を実際に生成する。
+
+    課金の判定はX認証を持つPHPゲートウェイ側で行う(監査と同じ)。ここは
+    内部トークンで守られた信頼済みの経路なので、二重に課金判定はしない。
+    """
+    row = db.get_audit(owner, audit_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Audit not found")
+    site_row = require_site(owner, row["site_id"])
+    kinds = artifact_service.missing_artifacts(row)
+    if not kinds:
+        raise HTTPException(status_code=400, detail="このサイトはすでに両方とも設置済みです")
+    free = within_free_quota(owner, "monitor")
+    try:
+        result = await artifact_service.generate(
+            site_row["url"], site_row["brand_name"], kinds, owner, paid=not free,
+        )
+    except (RuntimeError, httpx.HTTPError, KeyError, IndexError, TypeError) as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return {"audit_id": audit_id, **result}
 
 
 def _report_row(audit_id: str, owner: str) -> dict:

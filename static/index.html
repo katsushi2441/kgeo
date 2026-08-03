@@ -187,6 +187,20 @@
             <h3 data-i18n="h_recommend">次に直すこと</h3>
             <ol id="recommendations"></ol>
           </div>
+          <!-- 「直せ」の直後に「直したものを作る」を置く。詳細レポートの折りたたみ
+               の中だと、開いた人にしか見えないため外に出している。 -->
+          <div class="card artifact-card" id="artifactCard" hidden>
+            <h3>直すファイルを作る</h3>
+            <p class="artifact-lead" id="artifactLead"></p>
+            <ul class="artifact-what" id="artifactWhat"></ul>
+            <div class="artifact-cta">
+              <button class="btn primary" id="artifactGenerate" type="button">
+                生成する（200円 / 20,000 URLAI）
+              </button>
+              <span class="artifact-note">診断クレジットを1つ使います。生成後はいつでも見返せます。</span>
+            </div>
+            <div id="artifactResult" hidden></div>
+          </div>
           <section id="advancedReport" class="advanced-report" hidden>
             <div class="report-heading">
               <div>
