@@ -59,6 +59,8 @@ def usage_status(owner: str) -> UsageStatus:
     plan = db.get_plan(owner)
     is_admin = monitor_service.normalize_owner(owner) in config.ADMIN_USERS
     unlimited = is_admin or plan != "free"
+    monitor_used = db.monthly_usage(owner, "monitor", month)
+    next_run_is_free = unlimited or monitor_used < config.FREE_MONITOR_RUNS_PER_MONTH
     return UsageStatus(
         plan="admin" if is_admin else plan,
         month=month,
@@ -67,9 +69,10 @@ def usage_status(owner: str) -> UsageStatus:
         # The FastAPI token is trusted internal traffic and must not apply a
         # second monthly limit after a paid diagnosis has been authorized.
         audits_limit=None,
-        monitor_runs_used=db.monthly_usage(owner, "monitor", month),
+        monitor_runs_used=monitor_used,
         monitor_runs_limit=None if unlimited else config.FREE_MONITOR_RUNS_PER_MONTH,
-        llm_configured=monitor_service.configured(owner),
+        # 次の1回が無料枠に収まるかで、どちらのLLMの設定を見るかが変わる
+        llm_configured=monitor_service.configured(owner, paid=not next_run_is_free),
     )
 
 
@@ -81,6 +84,18 @@ def enforce_limit(owner: str, kind: str) -> None:
     limit = status.audits_limit if kind == "audit" else status.monitor_runs_limit
     if limit is not None and used >= limit:
         raise HTTPException(status_code=429, detail=f"FREE_{kind.upper()}_LIMIT_REACHED")
+
+
+def within_free_quota(owner: str, kind: str) -> bool:
+    """この実行が無料枠に収まるか。収まるならローカルGemma、超えたらDeepSeek。
+
+    管理者は limit=None(無制限)なので常に無料扱い＝Gemma。
+    """
+    status = usage_status(owner)
+    if kind != "monitor":
+        return True                      # 監査の課金はPHPゲートウェイ側で判定する
+    limit = status.monitor_runs_limit
+    return limit is None or status.monitor_runs_used < limit
 
 
 def require_site(owner: str, site_id: str) -> dict:
@@ -227,6 +242,8 @@ async def new_prompt_run(prompt_id: str, owner: str = Depends(authenticated_owne
     lock = monitor_locks.setdefault(owner, asyncio.Lock())
     async with lock:
         enforce_limit(owner, "monitor")
+        # 無料枠の実行は自社GPUのGemma、課金された実行はDeepSeek。
+        free = within_free_quota(owner, "monitor")
         try:
             result = await monitor_service.run_prompt(
                 prompt["prompt"],
@@ -234,6 +251,7 @@ async def new_prompt_run(prompt_id: str, owner: str = Depends(authenticated_owne
                 site_row["url"],
                 owner,
                 [site_row["name"]],
+                paid=not free,
             )
         except (RuntimeError, httpx.HTTPError, KeyError, IndexError, TypeError) as exc:
             raise HTTPException(status_code=503, detail=str(exc)) from exc

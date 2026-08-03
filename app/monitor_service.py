@@ -18,8 +18,19 @@ def normalize_owner(owner: str) -> str:
     return owner.strip().lstrip("@").lower()
 
 
-def provider_for(owner: str) -> str:
-    return "ollama" if normalize_owner(owner) in config.ADMIN_USERS else "deepseek"
+def provider_for(owner: str, *, paid: bool = True) -> str:
+    """この1回の実行にどのLLMを使うか。
+
+    無料枠の実行は自社GPUのGemmaで賄い、課金された実行だけホスト型の
+    DeepSeekを使う。無料枠でDeepSeekを呼ぶとAPI原価がそのまま赤字になり、
+    ローカルGPUを持っている利点も消える(2026-08-04にユーザー指摘で判明)。
+
+    管理者は常にGemma(無料・内部利用)。有料レールはDeepSeekという
+    ワークスペース方針は「課金された実行」に対して適用する。
+    """
+    if normalize_owner(owner) in config.ADMIN_USERS:
+        return "ollama"
+    return "deepseek" if paid else "ollama"
 
 
 def _read_key_file(path: str, name: str) -> str:
@@ -44,8 +55,8 @@ def deepseek_api_key() -> str:
     )
 
 
-def configured(owner: str) -> bool:
-    if provider_for(owner) == "ollama":
+def configured(owner: str, *, paid: bool = True) -> bool:
+    if provider_for(owner, paid=paid) == "ollama":
         return rqdb4ai_client.configured()
     return bool(config.DEEPSEEK_BASE_URL and config.DEEPSEEK_MODEL and deepseek_api_key())
 
@@ -172,12 +183,14 @@ async def run_prompt(
     site_url: str,
     owner: str,
     brand_aliases: list[str] | None = None,
+    *,
+    paid: bool = True,
 ) -> dict:
-    if not configured(owner):
+    if not configured(owner, paid=paid):
         raise RuntimeError("AI検索モニタリング用LLMが設定されていません")
     site_context = await asyncio.to_thread(audit_service.fetch_site_context, site_url)
     messages = _messages(prompt, brand_name, site_url, site_context)
-    if provider_for(owner) == "ollama":
+    if provider_for(owner, paid=paid) == "ollama":
         text, provider, model = await _run_ollama(messages)
     else:
         text, provider, model = await _run_deepseek(messages)

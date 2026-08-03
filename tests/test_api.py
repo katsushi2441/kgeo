@@ -121,10 +121,14 @@ def test_prompt_monitoring(tmp_path: Path, monkeypatch) -> None:
         site_url: str,
         owner: str,
         brand_aliases: list[str] | None = None,
+        *,
+        paid: bool = True,
     ) -> dict:
         assert prompt == "日本語のGEOサービスは？"
         assert owner == "alice"
         assert brand_aliases == ["Kurage GEO"]
+        # 無料枠の1回目なので、自社GPUのGemma側で実行されるはず
+        assert paid is False
         return {
             "provider": "mock",
             "model": "mock-search",
