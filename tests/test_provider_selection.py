@@ -89,3 +89,51 @@ class TestFreeQuotaBoundary:
         main_module, db = main
         monkeypatch.setattr(db, "monthly_usage", lambda o, k, m: 999)
         assert main_module.within_free_quota("xb_bittensor", "monitor") is True
+
+
+class TestAdminImpersonation:
+    """管理者だけが他ユーザーのデータを代理操作できること。
+
+    利用者が詰まったときに運営が手当てするための機能。誤って一般ユーザーに
+    使えてしまうと、他人のデータを触れることになる。
+    """
+
+    @pytest.fixture()
+    def app_client(self, tmp_path, monkeypatch):
+        from tests.test_api import configure_test  # 既存の初期化を再利用
+        from fastapi.testclient import TestClient
+        from app import config as cfg, main as main_module
+
+        configure_test(tmp_path, monkeypatch)
+        monkeypatch.setattr(cfg, "INTERNAL_TOKEN", "tok")
+        monkeypatch.setattr(cfg, "ADMIN_USERS", {"xb_bittensor"})
+        # with を使わないと lifespan が走らず init_db されない
+        with TestClient(main_module.app) as client:
+            yield client
+
+    def _headers(self, user, act_as=None):
+        h = {"X-KGeo-Token": "tok", "X-KGeo-User": user}
+        if act_as:
+            h["X-KGeo-Act-As"] = act_as
+        return h
+
+    def test_admin_can_act_as_another_user(self, app_client):
+        res = app_client.get("/api/sites", headers=self._headers("xb_bittensor", "alice"))
+        assert res.status_code == 200
+
+    def test_general_user_cannot_impersonate(self, app_client):
+        """黙って自分のデータを返すと、代理できたと誤解したまま作業が進む。"""
+        res = app_client.get("/api/sites", headers=self._headers("bob", "alice"))
+        assert res.status_code == 403
+
+    def test_acting_as_self_is_allowed(self, app_client):
+        res = app_client.get("/api/sites", headers=self._headers("bob", "bob"))
+        assert res.status_code == 200
+
+    def test_invalid_act_as_is_rejected(self, app_client):
+        res = app_client.get("/api/sites", headers=self._headers("xb_bittensor", "x" * 201))
+        assert res.status_code == 400
+
+    def test_admin_users_endpoint_requires_admin(self, app_client):
+        assert app_client.get("/api/admin/users", headers=self._headers("bob")).status_code == 403
+        assert app_client.get("/api/admin/users", headers=self._headers("xb_bittensor")).status_code == 200

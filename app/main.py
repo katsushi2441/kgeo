@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import hmac
+import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 
@@ -36,33 +37,57 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.mount("/static", StaticFiles(directory=config.STATIC_DIR), name="static")
+logger = logging.getLogger("kgeo")
 audit_locks: dict[str, asyncio.Lock] = {}
 monitor_locks: dict[str, asyncio.Lock] = {}
+
+
+def _valid_username(value: str) -> bool:
+    return bool(value) and len(value) <= 200 and not any(ord(char) < 32 for char in value)
+
+
+def is_admin(username: str) -> bool:
+    return monitor_service.normalize_owner(username) in config.ADMIN_USERS
 
 
 def authenticated_owner(
     x_kgeo_token: str = Header(default=""),
     x_kgeo_user: str = Header(default=""),
+    x_kgeo_act_as: str = Header(default=""),
 ) -> str:
-    if config.INTERNAL_TOKEN:
-        if not x_kgeo_token or not hmac.compare_digest(x_kgeo_token, config.INTERNAL_TOKEN):
-            raise HTTPException(status_code=401, detail="Invalid internal token")
-        owner = x_kgeo_user.strip()
-        if not owner or len(owner) > 200 or any(ord(char) < 32 for char in owner):
-            raise HTTPException(status_code=401, detail="Authenticated user is required")
+    """操作対象のオーナー。管理者だけ X-KGeo-Act-As で代理操作できる。
+
+    利用者が詰まったときに運営が直接手当てするためのもの。管理者以外が
+    ヘッダを付けても無視せず403にする(黙って自分のデータを操作すると、
+    代理できたと誤解したまま作業が進む)。
+    """
+    if not config.INTERNAL_TOKEN:
+        return config.DEV_USER
+    if not x_kgeo_token or not hmac.compare_digest(x_kgeo_token, config.INTERNAL_TOKEN):
+        raise HTTPException(status_code=401, detail="Invalid internal token")
+    owner = x_kgeo_user.strip()
+    if not _valid_username(owner):
+        raise HTTPException(status_code=401, detail="Authenticated user is required")
+    act_as = x_kgeo_act_as.strip()
+    if not act_as or act_as == owner:
         return owner
-    return config.DEV_USER
+    if not is_admin(owner):
+        raise HTTPException(status_code=403, detail="代理操作は管理者のみ利用できます")
+    if not _valid_username(act_as):
+        raise HTTPException(status_code=400, detail="代理操作の対象ユーザーが不正です")
+    logger.info("admin %s acting as %s", owner, act_as)
+    return act_as
 
 
 def usage_status(owner: str) -> UsageStatus:
     month = datetime.now(timezone.utc).strftime("%Y-%m")
     plan = db.get_plan(owner)
-    is_admin = monitor_service.normalize_owner(owner) in config.ADMIN_USERS
-    unlimited = is_admin or plan != "free"
+    admin = is_admin(owner)
+    unlimited = admin or plan != "free"
     monitor_used = db.monthly_usage(owner, "monitor", month)
     next_run_is_free = unlimited or monitor_used < config.FREE_MONITOR_RUNS_PER_MONTH
     return UsageStatus(
-        plan="admin" if is_admin else plan,
+        plan="admin" if admin else plan,
         month=month,
         audits_used=db.monthly_usage(owner, "audit", month),
         # Audit charging is enforced by the public X-authenticated PHP gateway.
@@ -119,6 +144,20 @@ def health(owner: str = Depends(authenticated_owner)) -> dict:
         "authenticated": bool(owner),
         "llm_configured": monitor_service.configured(owner),
     }
+
+
+@app.get("/api/admin/users")
+def admin_users(
+    x_kgeo_token: str = Header(default=""),
+    x_kgeo_user: str = Header(default=""),
+) -> dict:
+    """代理操作の対象にできる利用者の一覧。管理者専用・読み取りのみ。"""
+    if config.INTERNAL_TOKEN:
+        if not x_kgeo_token or not hmac.compare_digest(x_kgeo_token, config.INTERNAL_TOKEN):
+            raise HTTPException(status_code=401, detail="Invalid internal token")
+        if not is_admin(x_kgeo_user.strip()):
+            raise HTTPException(status_code=403, detail="管理者のみ利用できます")
+    return {"users": db.list_owners()}
 
 
 @app.get("/api/usage", response_model=UsageStatus)

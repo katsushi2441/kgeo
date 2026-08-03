@@ -179,6 +179,19 @@ def _site_dict(row: Mapping[str, Any]) -> dict:
     return item
 
 
+def list_owners() -> list[dict]:
+    """代理操作の対象にできる利用者の一覧。管理者向けの読み取り専用。"""
+    if remote_store.enabled():
+        rows = remote_store.call("list_owners") or []
+        return [dict(row) for row in rows]
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT owner, COUNT(*) sites, MAX(updated_at) last_seen"
+            " FROM sites GROUP BY owner ORDER BY last_seen DESC"
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
 def list_sites(owner: str) -> list[dict]:
     ensure_user(owner)
     if remote_store.enabled():

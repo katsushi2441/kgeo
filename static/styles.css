@@ -891,3 +891,11 @@ footer span {
   background: var(--aqua);
   color: #fff;
 }
+
+/* 管理者の代理操作セレクタ。運営が利用者のデータを直接見るためのもの。 */
+.act-as { display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--abyss-soft); }
+.act-as select {
+  font:inherit; padding:4px 8px; border-radius:8px;
+  border:1px solid var(--panel-line); background:var(--panel); color:var(--abyss); max-width:190px;
+}
+.act-as.active select { border-color:var(--gold); background:var(--gold-bg); color:var(--gold); font-weight:700; }

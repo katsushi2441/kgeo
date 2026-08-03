@@ -302,9 +302,42 @@ if (window.KGEO_USER) {
   if (logout) logout.hidden = false;
 }
 
+// 管理者だけ、利用者を選んでそのデータを参照・操作できる。
+// 選択は ?as= としてURLに載せる(リロードしても対象が保たれる)。
+async function initActAs() {
+  const box = document.getElementById("actAsBox");
+  const select = document.getElementById("actAsSelect");
+  if (!box || !select || !window.KGEO_IS_ADMIN) return;
+  box.hidden = false;
+  const current = window.KGEO_ACT_AS || "";
+  if (current) box.classList.add("active");
+  select.innerHTML = '<option value="">自分として操作</option>';
+  try {
+    const data = await api("/api/admin/users");
+    for (const row of data.users || []) {
+      const option = document.createElement("option");
+      option.value = row.owner;
+      option.textContent = `${row.owner}（${row.sites ?? 0}サイト）`;
+      if (row.owner === current) option.selected = true;
+      select.appendChild(option);
+    }
+  } catch (error) {
+    // 一覧が取れなくても本人としての操作は続けられる
+    console.warn("代理対象の一覧を取得できません", error);
+  }
+  select.onchange = () => {
+    const url = new URL(location.href);
+    if (select.value) url.searchParams.set("as", select.value);
+    else url.searchParams.delete("as");
+    location.href = url.toString();
+  };
+}
+
 async function api(path, options = {}) {
+  // 管理者が代理操作中なら、どのAPI呼び出しにも対象利用者を付ける
+  const actAs = window.KGEO_ACT_AS ? `&as=${encodeURIComponent(window.KGEO_ACT_AS)}` : '';
   const target = window.KGEO_API_PREFIX
-    ? `${window.KGEO_API_PREFIX}${encodeURIComponent(path)}`
+    ? `${window.KGEO_API_PREFIX}${encodeURIComponent(path)}${actAs}`
     : path;
   const headers = { "Content-Type": "application/json", ...options.headers };
   if (window.KGEO_CSRF) headers["X-CSRF-Token"] = window.KGEO_CSRF;
@@ -801,4 +834,5 @@ function escapeHtml(value) {
   d.textContent = value;
   return d.innerHTML;
 }
+initActAs();
 loadAll();

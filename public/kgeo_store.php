@@ -269,6 +269,11 @@ try {
             ));
             $result = (int)($row['count'] ?? 0);
             break;
+        case 'list_owners':
+            // 管理者の代理操作で対象を選ぶための一覧。読み取りのみ。
+            $rows = kgeo_store_all($pdo, 'SELECT owner, COUNT(*) sites, MAX(updated_at) last_seen FROM sites GROUP BY owner ORDER BY last_seen DESC', array());
+            $result = $rows;
+            break;
         case 'table_counts':
             kgeo_store_schema($pdo);
             $result = kgeo_store_counts($pdo);

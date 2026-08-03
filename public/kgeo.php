@@ -30,6 +30,16 @@ $auth = url2ai_auth_bootstrap();
 $logged_in = !empty($auth['logged_in']);
 $session_user = $logged_in ? trim((string)$auth['session_user']) : '';
 $is_admin = $logged_in && !empty($auth['is_admin']);
+// 管理者は利用者を選んで代理操作できる（利用者が詰まったときの手当て用）。
+// 管理者以外は $act_as を空のままにする。バックエンドでも再検証される。
+$act_as = '';
+if ($is_admin && isset($_GET['as'])) {
+    $candidate = trim((string)$_GET['as']);
+    if ($candidate !== '' && preg_match('/^[A-Za-z0-9_]{1,200}$/', $candidate)) {
+        $act_as = $candidate;
+    }
+}
+$GLOBALS['act_as'] = $act_as;
 if (empty($_SESSION['kgeo_csrf'])) {
     $_SESSION['kgeo_csrf'] = bin2hex(random_bytes(24));
 }
@@ -45,6 +55,7 @@ function kgeo_error($status, $detail) {
 
 function kgeo_route_allowed($path, $method) {
     if ($path === '/billing/status') { return $method === 'GET'; }
+    if ($path === '/api/admin/users') { return $method === 'GET'; }
     if (in_array($path, array('/billing/paypal', '/billing/urlai'), true)) { return $method === 'POST'; }
     if (in_array($path, array('/health', '/api/usage', '/api/sites'), true)) {
         return ($path === '/api/sites') ? in_array($method, array('GET', 'POST'), true) : $method === 'GET';
@@ -67,11 +78,11 @@ function kgeo_backend_get($path, $user) {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CONNECTTIMEOUT => 8,
         CURLOPT_TIMEOUT => 30,
-        CURLOPT_HTTPHEADER => array(
+        CURLOPT_HTTPHEADER => array_merge(array(
             'Accept: application/json',
             'X-KGeo-Token: ' . KGEO_API_TOKEN,
             'X-KGeo-User: ' . $user,
-        ),
+        ), kgeo_act_as_header()),
     ));
     $body = curl_exec($ch);
     $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -93,14 +104,20 @@ function kgeo_backend_audit_count($user) {
     return $count;
 }
 
+function kgeo_act_as_header() {
+    // 管理者が代理操作中のときだけ付ける。空なら通常どおり本人として動く。
+    $act_as = isset($GLOBALS['act_as']) ? (string)$GLOBALS['act_as'] : '';
+    return $act_as === '' ? array() : array('X-KGeo-Act-As: ' . $act_as);
+}
+
 function kgeo_proxy($method, $path, $user, $billing_mode = null) {
     @set_time_limit(650);
-    $headers = array(
+    $headers = array_merge(array(
         'Accept: application/json',
         'Content-Type: application/json',
         'X-KGeo-Token: ' . KGEO_API_TOKEN,
         'X-KGeo-User: ' . $user,
-    );
+    ), kgeo_act_as_header());
     $ch = curl_init(rtrim(KGEO_API_BASE, '/') . $path);
     // レポートDLはファイル名をバックエンドが決めるので Content-Disposition を転送する。
     // これが無いとブラウザが kgeo.php という名前で保存してしまう。
@@ -726,7 +743,7 @@ $html = file_get_contents($html_path);
 $html = str_replace('href="/static/styles.css"', 'href="?asset=styles.css"', $html);
 $html = str_replace('src="/static/app.js" defer', 'src="?asset=app.js" defer', $html);
 if ($lang === 'en') { $html = preg_replace('/<html lang="ja">/', '<html lang="en">', $html, 1); }
-$bootstrap = '<script>window.KGEO_API_PREFIX="?api=";window.KGEO_CSRF=' . json_encode($csrf) . ';window.KGEO_LANG=' . json_encode($lang) . ';window.KGEO_USER=' . json_encode($session_user) . ';</script>'
+$bootstrap = '<script>window.KGEO_API_PREFIX="?api=";window.KGEO_CSRF=' . json_encode($csrf) . ';window.KGEO_LANG=' . json_encode($lang) . ';window.KGEO_USER=' . json_encode($session_user) . ';window.KGEO_IS_ADMIN=' . ($is_admin ? 'true' : 'false') . ';window.KGEO_ACT_AS=' . json_encode($act_as) . ';</script>'
     . '<script async src="https://www.googletagmanager.com/gtag/js?id=G-BP0650KDFR"></script>'
     . '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-BP0650KDFR");</script>'
     . '<script>(function(){var s=document.createElement("script");s.src="https://aiknowledgecms.exbridge.jp/simpletrack.php?url="+encodeURIComponent(location.href)+"&ref="+encodeURIComponent(document.referrer);document.head.appendChild(s)})();</script>';
