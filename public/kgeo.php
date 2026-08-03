@@ -533,6 +533,179 @@ footer.site a { font-weight:700; }
     <details><summary><?php echo htmlspecialchars($T['faq2_q'], ENT_QUOTES, 'UTF-8'); ?></summary><p><?php echo htmlspecialchars($T['faq2_a'], ENT_QUOTES, 'UTF-8'); ?></p></details>
     <details><summary><?php echo htmlspecialchars($T['faq3_q'], ENT_QUOTES, 'UTF-8'); ?></summary><p><?php echo htmlspecialchars($T['faq3_a'], ENT_QUOTES, 'UTF-8'); ?></p></details>
   </section>
+<!-- BEGIN kurage-ecosystem (scripts/inject_ecosystem.py が生成) -->
+<style>
+  .kx-sec { max-width:1080px; margin:0 auto; padding:38px 20px; }
+  .kx-h { font-size:clamp(20px,3vw,27px); font-weight:800; text-align:center; margin-bottom:6px; }
+  .kx-sub { text-align:center; color:var(--abyss-soft); font-size:14px; margin-bottom:24px; }
+  .kx-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:16px; }
+  .kx-card { display:block; background:var(--panel); border:1px solid var(--panel-line);
+    border-radius:16px; overflow:hidden; box-shadow:var(--shadow); transition:transform .15s; }
+  .kx-card:hover { transform:translateY(-3px); }
+  .kx-card .kx-im { aspect-ratio:1200/630; background:var(--foam); overflow:hidden; }
+  .kx-card .kx-im img { width:100%; height:100%; object-fit:cover; display:block; }
+  .kx-card .kx-tx { padding:14px 16px 16px; }
+  .kx-card .kx-nm { font-weight:800; font-size:15px; color:var(--abyss); }
+  .kx-card .kx-ds { font-size:12.5px; color:var(--abyss-soft); margin-top:5px; line-height:1.7; }
+  .kx-card .kx-lk { font-size:12px; color:var(--teal-deep); font-weight:700; margin-top:8px; word-break:break-all; }
+  .kx-vision { background:var(--gold-bg); border:1px solid var(--gold-line); border-radius:18px; padding:26px; }
+  .kx-vision p { font-size:14.5px; }
+  .kx-vision ul { padding-left:22px; margin-top:12px; font-size:14px; color:var(--abyss); }
+  .kx-vision li { margin-bottom:8px; }
+  .kx-vision b { color:var(--gold); }
+  .kx-fine { font-size:12px; color:var(--abyss-soft); margin-top:14px; }
+</style>
+<?php if ($lang === 'en'): ?>
+<section class="kx-sec" id="kurage-ecosystem">
+  <h2 class="kx-h">The Kurage series</h2>
+  <p class="kx-sub">Kurage GEO is one product in the Kurage ecosystem.</p>
+  <div class="kx-grid">
+    <a class="kx-card" href="https://kfreqai.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kfreqai.exbridge.jp/assets/ogp.png" alt="📈 Kurage FreqAI Trade" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">📈 Kurage FreqAI Trade</div>
+        <div class="kx-ds">Self-improving crypto AI trading that researches its own losses. The whole process is published on the blog.</div>
+        <div class="kx-lk">kfreqai.exbridge.jp →</div></div>
+    </a>
+    <a class="kx-card" href="https://kurage.exbridge.jp/kfreqaihl.php" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kurage.exbridge.jp/images/kfreqaihl_ogp.png" alt="🌊 Kurage FreqAI for Hyperliquid" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🌊 Kurage FreqAI for Hyperliquid</div>
+        <div class="kx-ds">AI auto-trading with one wallet and no server. From crypto to FX, gold and equity indices.</div>
+        <div class="kx-lk">kurage.exbridge.jp/kfreqaihl.php →</div></div>
+    </a>
+    <a class="kx-card" href="https://kfxai.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kfxai.exbridge.jp/assets/ogp.png" alt="💱 Kurage FX AI Trade" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">💱 Kurage FX AI Trade</div>
+        <div class="kx-ds">OANDA-API FX automation with a swappable AI judgment layer. Yen pairs are being validated on paper trading.</div>
+        <div class="kx-lk">kfxai.exbridge.jp →</div></div>
+    </a>
+    <a class="kx-card" href="https://llm2api.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://llm2api.exbridge.jp/assets/ogp.png" alt="🤖 LLM2API" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🤖 LLM2API</div>
+        <div class="kx-ds">Pay-per-call LLM inference for agents. OpenAI-compatible, billed per request over x402.</div>
+        <div class="kx-lk">llm2api.exbridge.jp →</div></div>
+    </a>
+    <a class="kx-card" href="https://kurage.exbridge.jp/karchitect.php" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kurage.exbridge.jp/images/karchitect-ogp.png" alt="🏗️ Kurage Architect" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🏗️ Kurage Architect</div>
+        <div class="kx-ds">Build a system design document by talking with AI: requirements, Mermaid diagrams and PDF export.</div>
+        <div class="kx-lk">kurage.exbridge.jp/karchitect.php →</div></div>
+    </a>
+    <a class="kx-card" href="https://url2ai.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://url2ai.exbridge.jp/assets/ogp.png" alt="📝 Kurage URL2AI Publisher" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">📝 Kurage URL2AI Publisher</div>
+        <div class="kx-ds">Give it a URL and Kurage reads the page, writes an announcement and a blog post, then publishes to five channels.</div>
+        <div class="kx-lk">url2ai.exbridge.jp →</div></div>
+    </a>
+    <a class="kx-card" href="https://kmontage.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kmontage.exbridge.jp/assets/ogp.png" alt="🎬 kmontage" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🎬 kmontage</div>
+        <div class="kx-ds">Kurage's video production system that generates montages automatically from a script.</div>
+        <div class="kx-lk">kmontage.exbridge.jp →</div></div>
+    </a>
+    <a class="kx-card" href="https://github.com/katsushi2441/kargov" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kurl2earn.exbridge.jp/assets/cards/kargov.png" alt="🖱️ Kurage Argo Video（kargov）" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🖱️ Kurage Argo Video（kargov）</div>
+        <div class="kx-ds">A pipeline that turns recordings of AI browser operations into demo and manual videos.</div>
+        <div class="kx-lk">github.com/katsushi2441/kargov →</div></div>
+    </a>
+    <a class="kx-card" href="https://kurage.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kurage.exbridge.jp/images/kurage_ogp.png" alt="🪼 Kurage（総合ポータル）" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🪼 Kurage（総合ポータル）</div>
+        <div class="kx-ds">The entrance to the Kurage series. All products and intro videos in one place.</div>
+        <div class="kx-lk">kurage.exbridge.jp →</div></div>
+    </a>
+  </div>
+</section>
+
+<section class="kx-sec" id="urlai">
+  <h2 class="kx-h">URLAI is the ecosystem token</h2>
+  <div class="kx-vision">
+    <p>URLAI is <b>the token for spreading the Kurage ecosystem</b>. Beyond <a href="https://kurl2earn.exbridge.jp/kurl2earn.php?lang=en" target="_blank" rel="noopener">URL2Earn</a>, it is distributed to <b>kfreqai ambassadors</b>. A Kurage GEO audit can also be paid with 20,000 URLAI.</p>
+    <ul>
+      <li>Ambassadors trade crypto and FX with <b>kfreqai</b> and share their results.</li>
+      <li>That <b>improves kfreqai's profitability and spreads awareness</b>, aiming at <b>a project that eventually earns for many people</b>.</li>
+      <li>URLAI aims to be <b>part of the ecosystem's tokenomics</b>, distributed for that spreading and contribution.</li>
+    </ul>
+    <p class="kx-fine">* URLAI is a token of the <a href="https://kfreqai.exbridge.jp/" target="_blank" rel="noopener">Kurage FreqAI</a> ecosystem. Its price and liquidity fluctuate with the market and no monetary value is guaranteed.</p>
+  </div>
+</section>
+<?php else: ?>
+<section class="kx-sec" id="kurage-ecosystem">
+  <h2 class="kx-h">Kurageシリーズ</h2>
+  <p class="kx-sub">Kurage GEO は、Kurageエコシステムのひとつです。</p>
+  <div class="kx-grid">
+    <a class="kx-card" href="https://kfreqai.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kfreqai.exbridge.jp/assets/ogp.png" alt="📈 Kurage FreqAI Trade" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">📈 Kurage FreqAI Trade</div>
+        <div class="kx-ds">自分の負けを自分で研究する、自己改善型の暗号資産AI自動取引。全過程をブログで公開。</div>
+        <div class="kx-lk">kfreqai.exbridge.jp →</div></div>
+    </a>
+    <a class="kx-card" href="https://kurage.exbridge.jp/kfreqaihl.php" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kurage.exbridge.jp/images/kfreqaihl_ogp.png" alt="🌊 Kurage FreqAI for Hyperliquid" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🌊 Kurage FreqAI for Hyperliquid</div>
+        <div class="kx-ds">ウォレット1つ・サーバー不要のAI自動取引。CryptoからFX・金・株価指数まで。</div>
+        <div class="kx-lk">kurage.exbridge.jp/kfreqaihl.php →</div></div>
+    </a>
+    <a class="kx-card" href="https://kfxai.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kfxai.exbridge.jp/assets/ogp.png" alt="💱 Kurage FX AI Trade" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">💱 Kurage FX AI Trade</div>
+        <div class="kx-ds">OANDA APIのFX自動運用×差し替え可能なAI判断レイヤー。円ペアをペーパー取引で検証中。</div>
+        <div class="kx-lk">kfxai.exbridge.jp →</div></div>
+    </a>
+    <a class="kx-card" href="https://llm2api.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://llm2api.exbridge.jp/assets/ogp.png" alt="🤖 LLM2API" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🤖 LLM2API</div>
+        <div class="kx-ds">エージェントが1回ずつ買えるLLM推論。OpenAI互換をx402の従量課金で提供。</div>
+        <div class="kx-lk">llm2api.exbridge.jp →</div></div>
+    </a>
+    <a class="kx-card" href="https://kurage.exbridge.jp/karchitect.php" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kurage.exbridge.jp/images/karchitect-ogp.png" alt="🏗️ Kurage Architect" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🏗️ Kurage Architect</div>
+        <div class="kx-ds">AIと対話しながらシステム設計書を作る。要件定義・Mermaid構成図・PDF出力まで。</div>
+        <div class="kx-lk">kurage.exbridge.jp/karchitect.php →</div></div>
+    </a>
+    <a class="kx-card" href="https://url2ai.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://url2ai.exbridge.jp/assets/ogp.png" alt="📝 Kurage URL2AI Publisher" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">📝 Kurage URL2AI Publisher</div>
+        <div class="kx-ds">URLを渡すとKurageさんが記事を読み、告知文とブログを書いて5媒体へ自動配信。</div>
+        <div class="kx-lk">url2ai.exbridge.jp →</div></div>
+    </a>
+    <a class="kx-card" href="https://kmontage.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kmontage.exbridge.jp/assets/ogp.png" alt="🎬 kmontage" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🎬 kmontage</div>
+        <div class="kx-ds">台本から動画（モンタージュ）を自動生成する、Kurageの動画制作システム。</div>
+        <div class="kx-lk">kmontage.exbridge.jp →</div></div>
+    </a>
+    <a class="kx-card" href="https://github.com/katsushi2441/kargov" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kurl2earn.exbridge.jp/assets/cards/kargov.png" alt="🖱️ Kurage Argo Video（kargov）" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🖱️ Kurage Argo Video（kargov）</div>
+        <div class="kx-ds">AIがブラウザを操作した記録から、デモ・マニュアル動画を自動生成する制作パイプライン。</div>
+        <div class="kx-lk">github.com/katsushi2441/kargov →</div></div>
+    </a>
+    <a class="kx-card" href="https://kurage.exbridge.jp/" target="_blank" rel="noopener">
+      <div class="kx-im"><img src="https://kurage.exbridge.jp/images/kurage_ogp.png" alt="🪼 Kurage（総合ポータル）" loading="lazy"></div>
+      <div class="kx-tx"><div class="kx-nm">🪼 Kurage（総合ポータル）</div>
+        <div class="kx-ds">Kurageシリーズの入口。全プロダクトと紹介動画をまとめたポータル。</div>
+        <div class="kx-lk">kurage.exbridge.jp →</div></div>
+    </a>
+  </div>
+</section>
+
+<section class="kx-sec" id="urlai">
+  <h2 class="kx-h">URLAIはエコシステムのトークン</h2>
+  <div class="kx-vision">
+    <p>URLAIは、<b>Kurageエコシステムを広めるためのトークン</b>です。<a href="https://kurl2earn.exbridge.jp/kurl2earn.php" target="_blank" rel="noopener">URL2Earn</a>だけでなく、<b>kfreqaiのアンバサダー</b>にも配布されます。Kurage GEO の診断も 20,000 URLAI で利用できます。</p>
+    <ul>
+      <li>アンバサダーは <b>kfreqai</b> を使って暗号資産・FXをトレードし、その成果を発信します。</li>
+      <li>それが kfreqai の<b>収益性を高め、認知を広め</b>、やがて<b>たくさんの人の収益につながるプロジェクト</b>を目指しています。</li>
+      <li>URLAIは、その拡散と貢献に対して配られる、<b>トークノミクスにおけるエコシステムの一部</b>になることを目指しています。</li>
+    </ul>
+    <p class="kx-fine">※URLAIは <a href="https://kfreqai.exbridge.jp/kfreqai.html" target="_blank" rel="noopener">Kurage FreqAI</a> エコシステムのトークンです。価格や流動性は市場により変動し、金銭的価値を保証するものではありません。</p>
+  </div>
+</section>
+<?php endif; ?>
+<!-- END kurage-ecosystem -->
+
 </main>
 
 <footer class="site"><div class="wrap">

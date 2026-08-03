@@ -13,7 +13,10 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# 静的LP(kgeo.exbridge.jp)は言語ごとに別ファイル。
 PAGES = {"ja": ROOT / "landing" / "kgeo.html", "en": ROOT / "landing" / "index.html"}
+# アプリ本体(kurage.exbridge.jp/kgeo.php)は1ファイルで $lang により出し分ける。
+PHP_PAGE = ROOT / "public" / "kgeo.php"
 
 BEGIN = "<!-- BEGIN kurage-ecosystem (scripts/inject_ecosystem.py が生成) -->"
 END = "<!-- END kurage-ecosystem -->"
@@ -36,10 +39,10 @@ PRODUCTS = [
      "https://llm2api.exbridge.jp/assets/ogp.png",
      "エージェントが1回ずつ買えるLLM推論。OpenAI互換をx402の従量課金で提供。",
      "Pay-per-call LLM inference for agents. OpenAI-compatible, billed per request over x402."),
-    ("🎙️ Kurage VTuber", "https://kvtuber.exbridge.jp/",
-     "https://kvtuber.exbridge.jp/assets/ogp.png",
-     "リアルタイムに会話するKurageのAI VTuber。配信・対話のコア。",
-     "Kurage's real-time conversational AI VTuber. The core of streaming and dialogue."),
+    ("🏗️ Kurage Architect", "https://kurage.exbridge.jp/karchitect.php",
+     "https://kurage.exbridge.jp/images/karchitect-ogp.png",
+     "AIと対話しながらシステム設計書を作る。要件定義・Mermaid構成図・PDF出力まで。",
+     "Build a system design document by talking with AI: requirements, Mermaid diagrams and PDF export."),
     ("📝 Kurage URL2AI Publisher", "https://url2ai.exbridge.jp/",
      "https://url2ai.exbridge.jp/assets/ogp.png",
      "URLを渡すとKurageさんが記事を読み、告知文とブログを書いて5媒体へ自動配信。",
@@ -151,20 +154,36 @@ def build(lang: str) -> str:
 {END}"""
 
 
+def build_php() -> str:
+    """kgeo.php 用。1ファイルで両言語を持つため $lang で出し分ける。"""
+    return (f"{BEGIN}\n{STYLE}\n"
+            "<?php if ($lang === 'en'): ?>\n"
+            + build("en").replace(BEGIN, "").replace(END, "").replace(STYLE, "").strip()
+            + "\n<?php else: ?>\n"
+            + build("ja").replace(BEGIN, "").replace(END, "").replace(STYLE, "").strip()
+            + f"\n<?php endif; ?>\n{END}")
+
+
+def inject(path: Path, block: str) -> str:
+    html = path.read_text(encoding="utf-8")
+    if BEGIN in html:
+        html = re.sub(re.escape(BEGIN) + r".*?" + re.escape(END), block, html, flags=re.S)
+        action = "更新"
+    else:
+        if "</main>" not in html:
+            raise SystemExit(f"{path} に </main> が見つからない")
+        html = html.replace("</main>", f"{block}\n\n</main>", 1)
+        action = "追加"
+    path.write_text(html, encoding="utf-8")
+    return action
+
+
 def main() -> int:
     for lang, path in PAGES.items():
-        html = path.read_text(encoding="utf-8")
-        block = build(lang)
-        if BEGIN in html:
-            html = re.sub(re.escape(BEGIN) + r".*?" + re.escape(END), block, html, flags=re.S)
-            action = "更新"
-        else:
-            if "</main>" not in html:
-                raise SystemExit(f"{path} に </main> が見つからない")
-            html = html.replace("</main>", f"{block}\n\n</main>", 1)
-            action = "追加"
-        path.write_text(html, encoding="utf-8")
+        action = inject(path, build(lang))
         print(f"{action}: {path.name} ({lang}) 商材{len(PRODUCTS)}件")
+    action = inject(PHP_PAGE, build_php())
+    print(f"{action}: {PHP_PAGE.name} (ja/en 両方) 商材{len(PRODUCTS)}件")
     return 0
 
 
