@@ -7,10 +7,10 @@ from datetime import datetime, timezone
 
 import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
-from . import __version__, audit_service, config, db, monitor_service
+from . import __version__, audit_service, config, db, monitor_service, report
 from .models import (
     AuditDetail,
     AuditSummary,
@@ -158,6 +158,43 @@ def audit(audit_id: str, owner: str = Depends(authenticated_owner)) -> AuditDeta
     if not row:
         raise HTTPException(status_code=404, detail="Audit not found")
     return AuditDetail.model_validate(row)
+
+
+def _report_row(audit_id: str, owner: str) -> dict:
+    row = db.get_audit(owner, audit_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Audit not found")
+    return row
+
+
+@app.get("/api/audits/{audit_id}/report.md")
+def audit_report_markdown(
+    audit_id: str, lang: str = "ja", owner: str = Depends(authenticated_owner)
+) -> Response:
+    """監査結果をMarkdownでダウンロードする。"""
+    row = _report_row(audit_id, owner)
+    text = report.build_markdown(row, lang)
+    stem = report.filename_stem(row)
+    return Response(
+        content=text.encode("utf-8"),
+        media_type="text/markdown; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="{stem}.md"'},
+    )
+
+
+@app.get("/api/audits/{audit_id}/report.pdf")
+def audit_report_pdf(
+    audit_id: str, lang: str = "ja", owner: str = Depends(authenticated_owner)
+) -> Response:
+    """監査結果をPDFでダウンロードする。"""
+    row = _report_row(audit_id, owner)
+    pdf = report.build_pdf(row, lang)
+    stem = report.filename_stem(row)
+    return Response(
+        content=pdf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{stem}.pdf"'},
+    )
 
 
 @app.get("/api/sites/{site_id}/prompts", response_model=list[PromptSummary])

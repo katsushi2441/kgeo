@@ -60,6 +60,8 @@ const TT = {
     btn_run: "本文を読ませて確認",
     btn_no_llm: "AI接続未設定",
     aeo_notice_next: "再監査するとAEO判定が追加されます。",
+    dl_pdf: "PDFをダウンロード",
+    dl_md: "Markdownをダウンロード",
     aeo_heading_ja: "日本語で「質問に答えられるか」",
     aeo_heading_en: "英語ページとして「質問に答えられるか」",
     aeo_heading_unknown: "「質問に答えられるか」",
@@ -162,6 +164,8 @@ const TT = {
     btn_run: "Check against page content",
     btn_no_llm: "LLM not configured",
     aeo_notice_next: "Re-run the audit to add the AEO evaluation.",
+    dl_pdf: "Download PDF",
+    dl_md: "Download Markdown",
     aeo_heading_ja: "Can it answer questions? (Japanese page)",
     aeo_heading_en: "Can it answer questions? (English page)",
     aeo_heading_unknown: "Can it answer questions?",
@@ -422,8 +426,28 @@ async function loadAudits() {
   $("#recommendations").innerHTML =
     a.recommendations_ja.map((v) => `<li>${escapeHtml(v)}</li>`).join("") ||
     `<li>${T.rec_fallback}</li>`;
+  setReportDownloads(a.id);
   const detail = await api(`/api/audits/${a.id}`);
   renderAdvancedReport(detail.result || {});
+}
+
+// 監査レポート(PDF / Markdown)のダウンロードリンクを最新監査に向ける。
+// GETなのでCSRFヘッダは不要で、通常のリンク遷移でそのまま落とせる。
+// ファイル名はバックエンドのContent-Dispositionが決める(kgeo.phpが転送する)。
+function setReportDownloads(auditId) {
+  const pdf = $("#dlPdf");
+  const md = $("#dlMd");
+  if (!pdf || !md) return;
+  const build = (ext) => {
+    const path = `/api/audits/${auditId}/report.${ext}?lang=${LANG}`;
+    return window.KGEO_API_PREFIX
+      ? `${window.KGEO_API_PREFIX}${encodeURIComponent(path)}`
+      : path;
+  };
+  pdf.href = build("pdf");
+  md.href = build("md");
+  pdf.textContent = T.dl_pdf;
+  md.textContent = T.dl_md;
 }
 
 async function loadPrompts() {

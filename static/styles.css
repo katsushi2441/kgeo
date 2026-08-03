@@ -866,3 +866,28 @@ footer span {
     font-size: 19px;
   }
 }
+
+/* 監査レポートのダウンロード（PDF / Markdown） */
+.report-download {
+  margin: 8px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.dl-link {
+  display: inline-block;
+  padding: 6px 14px;
+  border: 1px solid var(--aqua);
+  border-radius: 999px;
+  color: var(--aqua-dark);
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.dl-link:hover,
+.dl-link:focus-visible {
+  background: var(--aqua);
+  color: #fff;
+}

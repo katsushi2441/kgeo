@@ -53,6 +53,10 @@ function kgeo_route_allowed($path, $method) {
     if (preg_match('#^/api/sites/[a-f0-9]{12}/audits$#', $path)) { return in_array($method, array('GET', 'POST'), true); }
     if (preg_match('#^/api/sites/[a-f0-9]{12}/prompts$#', $path)) { return in_array($method, array('GET', 'POST'), true); }
     if (preg_match('#^/api/audits/[a-f0-9]{12}$#', $path)) { return $method === 'GET'; }
+    // 監査レポートのダウンロード。lang だけはクエリを許す(値も ja|en に限定する)。
+    if (preg_match('#^/api/audits/[a-f0-9]{12}/report\.(md|pdf)(\?lang=(ja|en))?$#', $path)) {
+        return $method === 'GET';
+    }
     if (preg_match('#^/api/prompts/[a-f0-9]{12}/runs$#', $path)) { return in_array($method, array('GET', 'POST'), true); }
     return false;
 }
@@ -98,12 +102,26 @@ function kgeo_proxy($method, $path, $user, $billing_mode = null) {
         'X-KGeo-User: ' . $user,
     );
     $ch = curl_init(rtrim(KGEO_API_BASE, '/') . $path);
+    // レポートDLはファイル名をバックエンドが決めるので Content-Disposition を転送する。
+    // これが無いとブラウザが kgeo.php という名前で保存してしまう。
+    $disposition = '';
     curl_setopt_array($ch, array(
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_CONNECTTIMEOUT => 8,
         CURLOPT_TIMEOUT => 620,
         CURLOPT_CUSTOMREQUEST => $method,
         CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_HEADERFUNCTION => function ($ch, $line) use (&$disposition) {
+            if (stripos($line, 'Content-Disposition:') === 0) {
+                $value = trim(substr($line, strlen('Content-Disposition:')));
+                // 改行注入を防ぐため制御文字を落とし、想定する形だけ通す。
+                $value = preg_replace('/[\x00-\x1F\x7F]/', '', $value);
+                if (preg_match('/^attachment; filename="[A-Za-z0-9._-]{1,120}"$/', $value)) {
+                    $disposition = $value;
+                }
+            }
+            return strlen($line);
+        },
     ));
     if (in_array($method, array('POST', 'PUT'), true)) {
         $raw = file_get_contents('php://input');
@@ -129,6 +147,7 @@ function kgeo_proxy($method, $path, $user, $billing_mode = null) {
     http_response_code($status ?: 502);
     header('Content-Type: ' . ($content_type ?: 'application/json; charset=utf-8'));
     header('Cache-Control: no-store, max-age=0');
+    if ($disposition !== '') { header('Content-Disposition: ' . $disposition); }
     echo $body;
     exit;
 }
