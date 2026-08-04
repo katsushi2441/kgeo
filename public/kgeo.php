@@ -63,6 +63,8 @@ function kgeo_route_allowed($path, $method) {
     if (preg_match('#^/api/sites/[a-f0-9]{12}$#', $path)) { return $method === 'GET'; }
     if (preg_match('#^/api/sites/[a-f0-9]{12}/audits$#', $path)) { return in_array($method, array('GET', 'POST'), true); }
     if (preg_match('#^/api/sites/[a-f0-9]{12}/prompts$#', $path)) { return in_array($method, array('GET', 'POST'), true); }
+    // 監査結果のX共有(本文生成のみ・読み取り)
+    if (preg_match('#^/api/sites/[a-f0-9]{12}/share$#', $path)) { return $method === 'GET'; }
     if (preg_match('#^/api/audits/[a-f0-9]{12}$#', $path)) { return $method === 'GET'; }
     // llms.txt / JSON-LD の生成。GETは下見(無料)、POSTは生成(課金)。
     if (preg_match('#^/api/audits/[a-f0-9]{12}/artifacts$#', $path)) {

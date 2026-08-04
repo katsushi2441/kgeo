@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from . import (__version__, artifact_service, audit_service, config, db,
-               monitor_service, report)
+               monitor_service, report, share_service)
 from .models import (
     AuditDetail,
     AuditSummary,
@@ -213,6 +213,23 @@ def audit(audit_id: str, owner: str = Depends(authenticated_owner)) -> AuditDeta
     if not row:
         raise HTTPException(status_code=404, detail="Audit not found")
     return AuditDetail.model_validate(row)
+
+
+@app.get("/api/sites/{site_id}/share")
+def share_text(site_id: str, owner: str = Depends(authenticated_owner)) -> dict:
+    """監査結果をXへ投稿するための本文。
+
+    多ユーザーなので各自が自分のXへ投稿する。認証情報は預からず、
+    本文とXの投稿画面URLだけを返して、確定は利用者に委ねる。
+    """
+    site_row = require_site(owner, site_id)
+    audits = db.list_audits(owner, site_id)          # 新しい順
+    if not audits:
+        raise HTTPException(status_code=400, detail="まだ診断結果がありません")
+    try:
+        return share_service.build_text(site_row, audits, config.PUBLIC_APP_URL)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/api/audits/{audit_id}/artifacts")

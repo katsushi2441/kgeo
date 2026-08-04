@@ -463,6 +463,34 @@ async function loadAudits() {
   const detail = await api(`/api/audits/${a.id}`);
   renderAdvancedReport(detail.result || {});
   await renderArtifactCard(a.id);
+  await renderShareCard(a.site_id);
+}
+
+// --- 監査結果のX共有 -------------------------------------------------------
+// 多ユーザーなので各自が自分のXへ投稿する。認証情報は預からず、
+// 本文を作ってXの投稿画面へ渡し、確定は利用者に委ねる。
+async function renderShareCard(siteId) {
+  const card = document.getElementById("shareCard");
+  if (!card || !siteId) return;
+  card.hidden = true;
+  let data;
+  try {
+    data = await api(`/api/sites/${siteId}/share`);
+  } catch (error) {
+    return;                       // 共有できなくても診断結果の表示は妨げない
+  }
+  document.getElementById("shareLead").textContent = data.compared
+    ? `${data.audit_count}回の診断から、最初と最新の比較を作りました。`
+    : "今回の診断結果です。もう一度診断すると、改善前後の比較を投稿できます。";
+  document.getElementById("sharePreview").textContent = data.text;
+  document.getElementById("shareToX").href = data.intent_url;
+  const copy = document.getElementById("shareCopy");
+  copy.onclick = async () => {
+    await navigator.clipboard.writeText(data.text);
+    copy.textContent = "コピーしました";
+    setTimeout(() => { copy.textContent = "本文をコピー"; }, 1800);
+  };
+  card.hidden = false;
 }
 
 // --- llms.txt / JSON-LD の生成 -------------------------------------------

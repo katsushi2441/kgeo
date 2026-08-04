@@ -189,6 +189,16 @@
           </div>
           <!-- 「直せ」の直後に「直したものを作る」を置く。詳細レポートの折りたたみ
                の中だと、開いた人にしか見えないため外に出している。 -->
+          <div class="card share-card" id="shareCard" hidden>
+            <h3>結果をXで共有</h3>
+            <p class="share-lead" id="shareLead"></p>
+            <pre class="share-preview" id="sharePreview"></pre>
+            <div class="artifact-cta">
+              <a class="btn primary" id="shareToX" target="_blank" rel="noopener">Xで投稿する</a>
+              <button class="btn" type="button" id="shareCopy">本文をコピー</button>
+              <span class="artifact-note">投稿画面が開きます。内容を確認してから投稿してください。</span>
+            </div>
+          </div>
           <div class="card artifact-card" id="artifactCard" hidden>
             <h3>直すファイルを作る</h3>
             <p class="artifact-lead" id="artifactLead"></p>

@@ -61,3 +61,6 @@ DEEPSEEK_TIMEOUT = float(
 FREE_AUDITS_PER_MONTH = int(os.environ.get("KGEO_FREE_AUDITS_PER_MONTH", "3"))
 FREE_MONITOR_RUNS_PER_MONTH = int(os.environ.get("KGEO_FREE_MONITOR_RUNS_PER_MONTH", "5"))
 MAX_SITES_PER_USER = int(os.environ.get("KGEO_MAX_SITES_PER_USER", "20"))
+
+# 投稿本文の末尾に載せる公開URL。空なら載せない。
+PUBLIC_APP_URL = os.environ.get("KGEO_PUBLIC_APP_URL", "").strip() or "https://kurage.exbridge.jp/kgeo.php"
