@@ -305,6 +305,7 @@ $T_ALL = array(
   'faq3_a' => 'GEO Optimizerの決定論的な監査機能を中核に使い、AiCMOのAI可視性モニタリング設計を参考にした、MIT Licenseに基づく独立した日本語プロダクトです。公式日本語版ではありません。',
   'footer_product' => '株式会社エクスブリッジのプロダクト',
   'footer_contact' => 'お問い合わせ',
+  'footer_tokusho' => '特定商取引法に基づく表記',
 ),
 'en' => array(
   'title' => 'Kurage GEO | GEO audit workspace for AI search readiness',
@@ -344,6 +345,7 @@ $T_ALL = array(
   'faq3_a' => 'It uses the deterministic audit engine of GEO Optimizer Skill and references the AI-visibility monitoring design of AiCMO, as an independent Japanese-focused product under the MIT License. It is not an official localized version.',
   'footer_product' => 'A product of EXBRIDGE, Inc.',
   'footer_contact' => 'Contact',
+  'footer_tokusho' => 'Legal notice (Japanese law)',
 ),
 );
 $T = $T_ALL[$lang];
@@ -741,7 +743,8 @@ footer.site a { font-weight:700; }
   Kurage GEO — <a href="https://exbridge.jp/"><?php echo htmlspecialchars($T['footer_product'], ENT_QUOTES, 'UTF-8'); ?></a> ·
   <a href="https://github.com/katsushi2441/kgeo" target="_blank" rel="noopener">GitHub</a> ·
   <a href="https://kgeo.exbridge.jp/<?php echo $lang === 'en' ? '' : 'kgeo.html'; ?>" target="_blank" rel="noopener"><?php echo htmlspecialchars($T['nav_about'], ENT_QUOTES, 'UTF-8'); ?></a> ·
-  <a href="https://exbridge.jp/contact.php"><?php echo htmlspecialchars($T['footer_contact'], ENT_QUOTES, 'UTF-8'); ?></a>
+  <a href="https://exbridge.jp/contact.php"><?php echo htmlspecialchars($T['footer_contact'], ENT_QUOTES, 'UTF-8'); ?></a> ·
+  <a href="https://kurage.exbridge.jp/tokusho.php"><?php echo htmlspecialchars($T['footer_tokusho'], ENT_QUOTES, 'UTF-8'); ?></a>
   <br><br>&copy; <?php echo date('Y'); ?> EXBRIDGE, Inc.
 </div></footer>
 </body></html><?php
