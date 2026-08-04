@@ -564,6 +564,113 @@ footer.site a { font-weight:700; }
     <details><summary><?php echo htmlspecialchars($T['faq2_q'], ENT_QUOTES, 'UTF-8'); ?></summary><p><?php echo htmlspecialchars($T['faq2_a'], ENT_QUOTES, 'UTF-8'); ?></p></details>
     <details><summary><?php echo htmlspecialchars($T['faq3_q'], ENT_QUOTES, 'UTF-8'); ?></summary><p><?php echo htmlspecialchars($T['faq3_a'], ENT_QUOTES, 'UTF-8'); ?></p></details>
   </section>
+<!-- BEGIN kurage-geo-pro (scripts/inject_pro_concept.py が生成) -->
+<style>
+  .pro-sec { max-width:1080px; margin:0 auto; padding:38px 20px; }
+  .pro-box { background:var(--panel); border:1px solid var(--panel-line); border-radius:18px; padding:28px; }
+  .pro-badge { display:inline-block; font-size:12px; font-weight:800; letter-spacing:.04em;
+    background:var(--gold-bg); border:1px solid var(--gold-line); color:var(--gold);
+    border-radius:999px; padding:4px 14px; margin-bottom:12px; }
+  .pro-box h2 { font-size:clamp(19px,2.6vw,25px); margin-bottom:6px; }
+  .pro-lead { color:var(--abyss-soft); font-size:14.5px; margin-bottom:20px; }
+  .pro-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; margin-bottom:20px; }
+  .pro-item { background:var(--foam); border:1px solid var(--panel-line); border-radius:12px; padding:16px; }
+  .pro-item h3 { font-size:14.5px; font-weight:800; margin-bottom:5px; }
+  .pro-item p { font-size:12.5px; color:var(--abyss-soft); line-height:1.75; }
+  .pro-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  .pro-table th, .pro-table td { text-align:left; padding:9px 10px; border-bottom:1px solid var(--panel-line); }
+  .pro-table th { color:var(--abyss-soft); font-size:12px; }
+  .pro-auto { color:var(--teal-deep); font-weight:800; }
+  .pro-manual { color:var(--abyss-soft); }
+  .pro-note { font-size:12px; color:var(--abyss-soft); margin-top:16px; }
+  .set-box { background:var(--foam); border:1px solid var(--panel-line); border-radius:18px;
+    padding:26px; margin-top:16px; }
+  .set-box h3 { font-size:16px; font-weight:800; margin-bottom:6px; }
+  .set-box .set-sub { font-size:13px; color:var(--abyss-soft); margin-bottom:16px; }
+  .set-cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+  .set-col { background:var(--panel); border:1px solid var(--panel-line); border-radius:12px; padding:16px; }
+  .set-col h4 { font-size:13.5px; font-weight:800; margin-bottom:5px; color:var(--teal-deep); }
+  .set-col p { font-size:12.5px; color:var(--abyss-soft); line-height:1.75; }
+  .set-price { display:inline-block; font-size:13px; font-weight:800; color:var(--gold);
+    background:var(--gold-bg); border:1px solid var(--gold-line); border-radius:999px;
+    padding:5px 16px; margin-top:16px; }
+  .set-links { font-size:12.5px; margin-top:12px; }
+</style>
+<?php if ($lang === 'en'): ?>
+<section class="pro-sec" id="kurage-geo-pro">
+  <div class="pro-box">
+    <span class="pro-badge">In preparation — not available yet</span>
+    <h2>Kurage GEO Pro (concept)</h2>
+    <p class="pro-lead">Kurage GEO today covers <b>auditing and recommendations</b>. Pro is planned as a monthly plan that goes further — <b>continuous monitoring and applying the fixes</b>.</p>
+    <div class="pro-grid">
+      <div class="pro-item"><h3>Continuous monitoring</h3><p>Re-audits automatically every week or month and detects score drops. If a fixed item regresses, the issue reopens by itself.</p></div>
+      <div class="pro-item"><h3>GitHub App integration</h3><p>Install Kurage GEO Pro on your site's repository and fixes arrive as pull requests. Review, merge, and they ship.</p></div>
+      <div class="pro-item"><h3>Automate what is safe to automate</h3><p>Fixes that need no judgement become PRs as soon as they are detected. Anything that needs judgement stays a recommendation.</p></div>
+      <div class="pro-item"><h3>Before / after on record</h3><p>First-versus-latest comparison in a monthly report, plus a summary you can share on X as is.</p></div>
+    </div>
+    <table class="pro-table">
+      <tr><th>Fix</th><th>How Pro handles it</th></tr>
+        <tr><td>Publish / update llms.txt</td><td class="pro-auto">Fully automatic PR</td></tr>
+        <tr><td>Allow AI crawlers in robots.txt</td><td class="pro-auto">Fully automatic PR</td></tr>
+        <tr><td>Publish sitemap.xml</td><td class="pro-auto">Fully automatic PR</td></tr>
+        <tr><td>Insert JSON-LD</td><td class="pro-manual">Recommendation (you place it)</td></tr>
+        <tr><td>Rewrite body copy</td><td class="pro-manual">Recommendation (you decide the wording)</td></tr>
+    </table>
+    <p class="pro-note">* This section describes a <b>concept</b>. Availability, pricing and features are undecided. What you can use today is the GEO audit only — first one free, then ¥200 (or 20,000 URLAI) per audit. No guarantee of search rankings or inclusion in AI answers.</p>
+  </div>
+
+  <div class="set-box">
+    <h3>Option: bundle Kurage URL2GPTResearcher</h3>
+    <p class="set-sub">GEO prepares the <b>ground for being found</b>. But if the content on top has not changed in years, the site still reads as one that stopped moving. The publishing itself can be bundled into Pro.</p>
+    <div class="set-cols">
+        <div class="set-col"><h4>What Kurage GEO Pro does</h4><p>AI crawler access, llms.txt, structured data, body structure — it prepares the <b>technical ground for AI to understand and cite you</b>, and repairs it when it regresses.</p></div>
+        <div class="set-col"><h4>What Kurage URL2GPTResearcher does</h4><p>AI reads what your site is about, then <b>researches related news, writes it up and keeps publishing</b> on your site. All that sits on your server is one display-only PHP file.</p></div>
+        <div class="set-col"><h4>Bundled</h4><p>For a site whose audit flags weak update signals, you get the groundwork fixes and the <b>updates themselves</b> at once — audit, fix and publish become one line.</p></div>
+    </div>
+    <p><span class="set-price">Bundle pricing on request</span></p>
+    <p class="set-links">Kurage URL2GPTResearcher is <b>available on its own today</b> (¥200 or 20,000 URLAI per research). → <a href="https://kurage.exbridge.jp/kurl2gr.php?lang=en">Start</a> / <a href="https://kurl2gr.exbridge.jp/" target="_blank" rel="noopener">About the service</a></p>
+    <p class="pro-note">* The bundle is a <b>concept</b>, like Kurage GEO Pro itself. Availability is undecided and pricing is agreed case by case.</p>
+  </div>
+</section>
+<?php else: ?>
+<section class="pro-sec" id="kurage-geo-pro">
+  <div class="pro-box">
+    <span class="pro-badge">準備中 — まだご利用いただけません</span>
+    <h2>Kurage GEO Pro（構想）</h2>
+    <p class="pro-lead">いまの Kurage GEO は<b>監査と提案</b>までです。Pro はその先——<b>常時監視と修正の実行</b>まで受け持つ月額版として構想しています。</p>
+    <div class="pro-grid">
+      <div class="pro-item"><h3>常時監視</h3><p>週次または月次で自動的に再監査し、スコアの低下を検知します。直したはずの項目が戻ったら、自動で課題を再オープンします。</p></div>
+      <div class="pro-item"><h3>GitHub App 連携</h3><p>サイトのリポジトリに Kurage GEO Pro をインストールしていただくと、修正を Pull Request として提出します。レビューしてマージするだけで反映されます。</p></div>
+      <div class="pro-item"><h3>自動で直せるものは自動で</h3><p>判断の要らない修正は検知しだい PR にします。判断が要るものは提案に留め、内容の決定はお客様に残します。</p></div>
+      <div class="pro-item"><h3>before / after の記録</h3><p>最初と最新の比較を月次レポートにまとめます。Xでそのまま共有できる要約も生成します。</p></div>
+    </div>
+    <table class="pro-table">
+      <tr><th>修正内容</th><th>Proでの扱い</th></tr>
+        <tr><td>llms.txt の設置・更新</td><td class="pro-auto">完全自動でPR</td></tr>
+        <tr><td>robots.txt のAIクローラー許可</td><td class="pro-auto">完全自動でPR</td></tr>
+        <tr><td>sitemap.xml の設置</td><td class="pro-auto">完全自動でPR</td></tr>
+        <tr><td>JSON-LD の挿入</td><td class="pro-manual">提案（設置はお客様の手で）</td></tr>
+        <tr><td>本文の書き直し</td><td class="pro-manual">提案（内容の決定はお客様）</td></tr>
+    </table>
+    <p class="pro-note">※ 本セクションは<b>構想段階の内容</b>であり、提供時期・価格・機能は未定です。現在ご利用いただけるのは、初回無料・2回目以降1診断200円（または20,000 URLAI）のGEO診断のみです。検索順位やAI回答への掲載を保証するものではありません。</p>
+  </div>
+
+  <div class="set-box">
+    <h3>オプション：Kurage URL2GPTResearcher をセットに</h3>
+    <p class="set-sub">GEOで<b>見つけてもらう下地</b>を整えても、載っている中身が何年も同じままなら「動いていないサイト」に見えます。更新そのものを続ける仕組みを、Proに束ねられます。</p>
+    <div class="set-cols">
+        <div class="set-col"><h4>Kurage GEO Pro がやること</h4><p>AIクローラーの許可、llms.txt、構造化データ、本文の構造——<b>AIに理解・引用されるための技術的な下地</b>を整え、崩れたら直します。</p></div>
+        <div class="set-col"><h4>Kurage URL2GPTResearcher がやること</h4><p>サイトの内容をAIが理解し、その事業に<b>関連する最新情報を調べて記事にし、掲載し続けます</b>。顧客サイトに置くのは表示専用のPHP1ファイルだけです。</p></div>
+        <div class="set-col"><h4>セットにすると</h4><p>監査で「更新・配信シグナルが弱い」と出たサイトに、下地の修正と<b>更新の実体</b>を同時に入れられます。監査→修正→掲載が一本の線になります。</p></div>
+    </div>
+    <p><span class="set-price">セット価格は応相談</span></p>
+    <p class="set-links">Kurage URL2GPTResearcher は<b>単体では今すぐご利用いただけます</b>（1調査 200円 または 20,000 URLAI）。→ <a href="https://kurage.exbridge.jp/kurl2gr.php">はじめる</a> ／ <a href="https://kurl2gr.exbridge.jp/kurl2gr.html" target="_blank" rel="noopener">サービス紹介</a></p>
+    <p class="pro-note">※ セットでのご提供は Kurage GEO Pro と同じく<b>構想段階</b>です。提供時期は未定で、価格はご相談のうえ決定します。</p>
+  </div>
+</section>
+<?php endif; ?>
+<!-- END kurage-geo-pro -->
+
 <!-- BEGIN kurage-ecosystem (scripts/inject_ecosystem.py が生成) -->
 <style>
   .kx-sec { max-width:1080px; margin:0 auto; padding:38px 20px; }

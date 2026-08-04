@@ -262,6 +262,18 @@ footer.site a { font-weight:700; }
   .pro-auto { color:var(--teal-deep); font-weight:800; }
   .pro-manual { color:var(--abyss-soft); }
   .pro-note { font-size:12px; color:var(--abyss-soft); margin-top:16px; }
+  .set-box { background:var(--foam); border:1px solid var(--panel-line); border-radius:18px;
+    padding:26px; margin-top:16px; }
+  .set-box h3 { font-size:16px; font-weight:800; margin-bottom:6px; }
+  .set-box .set-sub { font-size:13px; color:var(--abyss-soft); margin-bottom:16px; }
+  .set-cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+  .set-col { background:var(--panel); border:1px solid var(--panel-line); border-radius:12px; padding:16px; }
+  .set-col h4 { font-size:13.5px; font-weight:800; margin-bottom:5px; color:var(--teal-deep); }
+  .set-col p { font-size:12.5px; color:var(--abyss-soft); line-height:1.75; }
+  .set-price { display:inline-block; font-size:13px; font-weight:800; color:var(--gold);
+    background:var(--gold-bg); border:1px solid var(--gold-line); border-radius:999px;
+    padding:5px 16px; margin-top:16px; }
+  .set-links { font-size:12.5px; margin-top:12px; }
 </style>
 <section class="pro-sec" id="kurage-geo-pro">
   <div class="pro-box">
@@ -283,6 +295,19 @@ footer.site a { font-weight:700; }
         <tr><td>本文の書き直し</td><td class="pro-manual">提案（内容の決定はお客様）</td></tr>
     </table>
     <p class="pro-note">※ 本セクションは<b>構想段階の内容</b>であり、提供時期・価格・機能は未定です。現在ご利用いただけるのは、初回無料・2回目以降1診断200円（または20,000 URLAI）のGEO診断のみです。検索順位やAI回答への掲載を保証するものではありません。</p>
+  </div>
+
+  <div class="set-box">
+    <h3>オプション：Kurage URL2GPTResearcher をセットに</h3>
+    <p class="set-sub">GEOで<b>見つけてもらう下地</b>を整えても、載っている中身が何年も同じままなら「動いていないサイト」に見えます。更新そのものを続ける仕組みを、Proに束ねられます。</p>
+    <div class="set-cols">
+        <div class="set-col"><h4>Kurage GEO Pro がやること</h4><p>AIクローラーの許可、llms.txt、構造化データ、本文の構造——<b>AIに理解・引用されるための技術的な下地</b>を整え、崩れたら直します。</p></div>
+        <div class="set-col"><h4>Kurage URL2GPTResearcher がやること</h4><p>サイトの内容をAIが理解し、その事業に<b>関連する最新情報を調べて記事にし、掲載し続けます</b>。顧客サイトに置くのは表示専用のPHP1ファイルだけです。</p></div>
+        <div class="set-col"><h4>セットにすると</h4><p>監査で「更新・配信シグナルが弱い」と出たサイトに、下地の修正と<b>更新の実体</b>を同時に入れられます。監査→修正→掲載が一本の線になります。</p></div>
+    </div>
+    <p><span class="set-price">セット価格は応相談</span></p>
+    <p class="set-links">Kurage URL2GPTResearcher は<b>単体では今すぐご利用いただけます</b>（1調査 200円 または 20,000 URLAI）。→ <a href="https://kurage.exbridge.jp/kurl2gr.php">はじめる</a> ／ <a href="https://kurl2gr.exbridge.jp/kurl2gr.html" target="_blank" rel="noopener">サービス紹介</a></p>
+    <p class="pro-note">※ セットでのご提供は Kurage GEO Pro と同じく<b>構想段階</b>です。提供時期は未定で、価格はご相談のうえ決定します。</p>
   </div>
 </section>
 <!-- END kurage-geo-pro -->

@@ -262,6 +262,18 @@ footer.site a { font-weight:700; }
   .pro-auto { color:var(--teal-deep); font-weight:800; }
   .pro-manual { color:var(--abyss-soft); }
   .pro-note { font-size:12px; color:var(--abyss-soft); margin-top:16px; }
+  .set-box { background:var(--foam); border:1px solid var(--panel-line); border-radius:18px;
+    padding:26px; margin-top:16px; }
+  .set-box h3 { font-size:16px; font-weight:800; margin-bottom:6px; }
+  .set-box .set-sub { font-size:13px; color:var(--abyss-soft); margin-bottom:16px; }
+  .set-cols { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+  .set-col { background:var(--panel); border:1px solid var(--panel-line); border-radius:12px; padding:16px; }
+  .set-col h4 { font-size:13.5px; font-weight:800; margin-bottom:5px; color:var(--teal-deep); }
+  .set-col p { font-size:12.5px; color:var(--abyss-soft); line-height:1.75; }
+  .set-price { display:inline-block; font-size:13px; font-weight:800; color:var(--gold);
+    background:var(--gold-bg); border:1px solid var(--gold-line); border-radius:999px;
+    padding:5px 16px; margin-top:16px; }
+  .set-links { font-size:12.5px; margin-top:12px; }
 </style>
 <section class="pro-sec" id="kurage-geo-pro">
   <div class="pro-box">
@@ -283,6 +295,19 @@ footer.site a { font-weight:700; }
         <tr><td>Rewrite body copy</td><td class="pro-manual">Recommendation (you decide the wording)</td></tr>
     </table>
     <p class="pro-note">* This section describes a <b>concept</b>. Availability, pricing and features are undecided. What you can use today is the GEO audit only — first one free, then ¥200 (or 20,000 URLAI) per audit. No guarantee of search rankings or inclusion in AI answers.</p>
+  </div>
+
+  <div class="set-box">
+    <h3>Option: bundle Kurage URL2GPTResearcher</h3>
+    <p class="set-sub">GEO prepares the <b>ground for being found</b>. But if the content on top has not changed in years, the site still reads as one that stopped moving. The publishing itself can be bundled into Pro.</p>
+    <div class="set-cols">
+        <div class="set-col"><h4>What Kurage GEO Pro does</h4><p>AI crawler access, llms.txt, structured data, body structure — it prepares the <b>technical ground for AI to understand and cite you</b>, and repairs it when it regresses.</p></div>
+        <div class="set-col"><h4>What Kurage URL2GPTResearcher does</h4><p>AI reads what your site is about, then <b>researches related news, writes it up and keeps publishing</b> on your site. All that sits on your server is one display-only PHP file.</p></div>
+        <div class="set-col"><h4>Bundled</h4><p>For a site whose audit flags weak update signals, you get the groundwork fixes and the <b>updates themselves</b> at once — audit, fix and publish become one line.</p></div>
+    </div>
+    <p><span class="set-price">Bundle pricing on request</span></p>
+    <p class="set-links">Kurage URL2GPTResearcher is <b>available on its own today</b> (¥200 or 20,000 URLAI per research). → <a href="https://kurage.exbridge.jp/kurl2gr.php?lang=en">Start</a> / <a href="https://kurl2gr.exbridge.jp/" target="_blank" rel="noopener">About the service</a></p>
+    <p class="pro-note">* The bundle is a <b>concept</b>, like Kurage GEO Pro itself. Availability is undecided and pricing is agreed case by case.</p>
   </div>
 </section>
 <!-- END kurage-geo-pro -->
