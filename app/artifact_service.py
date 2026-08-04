@@ -16,11 +16,12 @@ import json
 import re
 from typing import Any
 
-from . import audit_service, monitor_service
+from . import audit_service, monitor_service, seo
 
 # 生成物の種類。監査の不足項目と対応する。
 LLMS_TXT = "llms_txt"
 JSON_LD = "json_ld"
+META = "meta"
 
 MAX_CONTEXT_CHARS = 6000
 
@@ -38,6 +39,9 @@ def missing_artifacts(audit_result: dict[str, Any]) -> list[str]:
     schema = result.get("schema") or {}
     if not schema.get("has_organization") or not schema.get("has_website"):
         missing.append(JSON_LD)
+    meta = result.get("meta") or {}
+    if not all(meta.get(k) for k in ("has_description", "has_og_title", "has_og_description")):
+        missing.append(META)
     return missing
 
 
@@ -78,6 +82,37 @@ def _jsonld_prompt(site_url: str, brand_name: str, context: str) -> list[dict[st
                 "Organization には name, url, description, logo(あれば) を、"
                 "WebSite には name, url, inLanguage を必ず入れること。\n"
                 "本文から読み取れない値は入れないこと。"
+                "JSON以外の文字（説明・コードフェンス）を出力しないこと。"
+            ),
+        },
+        {
+            "role": "user",
+            "content": (
+                f"サイトURL: {site_url}\n"
+                f"ブランド名: {brand_name}\n\n"
+                f"--- ページ本文 ---\n{context[:MAX_CONTEXT_CHARS]}"
+            ),
+        },
+    ]
+
+
+def _meta_prompt(site_url: str, brand_name: str, context: str) -> list[dict[str, str]]:
+    """メタ情報の文面だけをLLMに書かせる。タグの組み立ては seo.create_metadata が行う。
+
+    文面（何と書くか）は本文を読んで決める必要があるが、タグの並べ方は
+    決まりきっている。決まっている方を生成に任せると、抜けや綴り間違いが
+    そのまま顧客サイトに乗る。
+    """
+    return [
+        {
+            "role": "system",
+            "content": (
+                "あなたはWebサイトのメタ情報を書く編集者です。"
+                "次のJSONだけを出力してください。\n"
+                '{"title": "...", "description": "..."}\n'
+                "title は30文字以内で、そのページが何かが分かる日本語。\n"
+                "description は60〜120文字で、ページ内容を端的に要約した日本語。\n"
+                "本文に含まれない情報を創作しないこと。"
                 "JSON以外の文字（説明・コードフェンス）を出力しないこと。"
             ),
         },
@@ -152,11 +187,43 @@ async def generate(
         ok, reason = _valid_jsonld(body)
         artifacts[JSON_LD] = {
             "filename": "jsonld.html",
-            "content": f'<script type="application/ld+json">\n{body}\n</script>',
+            # LLMの出力をそのまま <script> へ入れない。本文に `</script>` が
+            # 混じるとタグが途中で閉じ、顧客サイトへ任意のHTMLが差し込める。
+            "content": seo.json_ld_script(body),
             "valid": ok,
             "invalid_reason": reason,
             "placement": "各ページの <head> の中に貼り付けます。WordPressならテーマの head 追加欄、"
                          "CMSなら構造化データの設定欄に入れます。",
         }
 
+    if META in kinds:
+        text, provider, model = await monitor_service.run_messages(
+            _meta_prompt(site_url, brand_name, context), owner, paid=paid
+        )
+        artifacts[META] = _build_meta_artifact(text, site_url, brand_name)
+
     return {"artifacts": artifacts, "provider": provider, "model": model}
+
+
+def _build_meta_artifact(text: str, site_url: str, brand_name: str) -> dict[str, Any]:
+    """LLMが書いた文面を、seo.create_metadata でタグに組み上げる。"""
+    try:
+        payload = json.loads(_strip_fence(text))
+        content = seo.create_metadata(
+            title=str(payload["title"]),
+            description=str(payload["description"]),
+            url=site_url,
+            site_name=brand_name,
+        )
+        valid, reason = True, ""
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
+        content = ""
+        valid, reason = False, f"メタ情報を組み立てられませんでした: {exc}"
+    return {
+        "filename": "meta.html",
+        "content": content,
+        "valid": valid,
+        "invalid_reason": reason,
+        "placement": "各ページの <head> の中に貼り付けます。既に同じ名前のタグがある場合は"
+                     "置き換えてください。og:image は 1200×630 の画像URLを追記します。",
+    }

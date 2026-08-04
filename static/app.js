@@ -504,6 +504,10 @@ const ARTIFACT_LABEL = {
     name: "JSON-LD",
     what: "<b>JSON-LD</b> — 組織名・URL・サイト名を機械可読で示す構造化データ。ページの &lt;head&gt; に貼ります。",
   },
+  meta: {
+    name: "メタ情報",
+    what: "<b>メタ情報</b> — description・OGP・Twitterカード・canonical を揃えたタグ一式。検索結果とSNSでの見え方が決まります。",
+  },
 };
 
 async function renderArtifactCard(auditId) {
